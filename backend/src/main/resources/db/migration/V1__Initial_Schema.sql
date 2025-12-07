@@ -1,7 +1,7 @@
 
 CREATE TABLE platforms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,       -- "Steam", "GOG"
+    name TEXT NOT NULL UNIQUE,
     icon_url TEXT,
     type TEXT NOT NULL CHECK (type IN ('API', 'MANUAL')) -- API for online sync and MANUAL for locally added games
 );
@@ -32,11 +32,11 @@ INSERT INTO platform_paths (platform_id, path) VALUES
 CREATE TABLE games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    igdb_id TEXT UNIQUE,             -- Universal Game ID from IGDB
+    igdb_id TEXT UNIQUE,
     cover_url TEXT,
     description TEXT,
     release_date DATE,
-    publisher TEXT
+    publisher TEXT,
     developer TEXT
 );
 
@@ -52,7 +52,7 @@ CREATE TABLE library_entries (
 
     FOREIGN KEY (game_id) REFERENCES games(id),
     FOREIGN KEY (platform_id) REFERENCES platforms(id),
-    UNIQUE(game_id, platform_id)     -- Prevent duplicate rows for the same ownership
+    UNIQUE(game_id, platform_id)
 );
 
 CREATE TABLE tags (
