@@ -2,11 +2,9 @@ package com.pantheon.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.proxy.HibernateProxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "platforms")
@@ -28,10 +26,7 @@ public class Platform {
     private PlatformType type;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "platform_paths",
-            joinColumns = @JoinColumn(name = "platform_id")
-    )
+    @CollectionTable(name = "platform_paths", joinColumns = @JoinColumn(name = "platform_id"))
     @Column(name = "path") // The column name in the child table
     private List<String> libraryPaths = new ArrayList<>();
 

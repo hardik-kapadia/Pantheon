@@ -3,14 +3,11 @@ package com.pantheon.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "library_entries", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"game_id", "platform_id"})
-})
+@Table(name = "library_entries", uniqueConstraints = {@UniqueConstraint(columnNames = {"game_id", "platform_id"})})
 @Data
 @NoArgsConstructor
 public class LibraryEntry {
