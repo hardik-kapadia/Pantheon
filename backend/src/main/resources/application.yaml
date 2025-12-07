@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: backend
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:sqlite:pantheon.db?foreign_keys=on
+    driver-class-name: org.sqlite.JDBC
+    username:
+    password:
+
+  flyway:
+    enabled: true
+    validate-on-migrate: false
+    baseline-on-migrate: true
+
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
