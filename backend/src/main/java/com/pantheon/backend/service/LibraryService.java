@@ -8,8 +8,7 @@ import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repositories.GameRepository;
 import com.pantheon.backend.repositories.LibraryEntryRepository;
 import com.pantheon.backend.repositories.PlatformRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +19,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class LibraryService {
-
-    Logger logger = LoggerFactory.getLogger(LibraryService.class);
 
     private final PlatformRepository platformRepository;
     private final GameRepository gameRepository;
     private final LibraryEntryRepository libraryEntryRepository;
-
     private final Map<String, LocalGameLibraryClient> scannerMap;
 
     @Autowired
@@ -55,7 +52,7 @@ public class LibraryService {
             throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
         }
 
-        logger.info("Starting scan for {} ...", platformName);
+        log.info("Starting scan for {} ...", platformName);
 
         for (String pathStr : platform.getLibraryPaths()) {
             List<ScannedLocalGameDTO> foundGames = scanner.scan(Path.of(pathStr));
@@ -69,7 +66,7 @@ public class LibraryService {
             Game game = findOrCreateGame(dto);
             createOrUpdateLibraryEntry(game, platform, dto);
         }
-        logger.info("Processed {} games ", scannedGames.size());
+        log.info("Processed {} games ", scannedGames.size());
     }
 
     private Game findOrCreateGame(ScannedLocalGameDTO dto) {
