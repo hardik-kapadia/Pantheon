@@ -12,10 +12,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -29,8 +30,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Platform {
 
     @Id

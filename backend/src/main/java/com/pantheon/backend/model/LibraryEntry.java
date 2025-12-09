@@ -10,10 +10,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -26,8 +27,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class LibraryEntry {
 
     @Id

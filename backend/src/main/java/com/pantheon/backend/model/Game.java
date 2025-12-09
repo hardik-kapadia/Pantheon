@@ -10,9 +10,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -27,8 +29,9 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Game {
 
     @Id
