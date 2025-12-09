@@ -1,7 +1,7 @@
 package com.pantheon.backend.integration;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
-import com.pantheon.backend.dto.ScannedGameDTO;
+import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.model.PlatformType;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ class LocalGogLibraryScanner implements LocalGameLibraryClient {
     }
 
     @Override
-    public List<ScannedGameDTO> scan(Path libraryPath) {
+    public List<ScannedLocalGameDTO> scan(Path libraryPath) {
         return List.of();
     }
 }

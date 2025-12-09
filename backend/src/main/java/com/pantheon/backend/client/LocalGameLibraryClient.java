@@ -1,6 +1,6 @@
 package com.pantheon.backend.client;
 
-import com.pantheon.backend.dto.ScannedGameDTO;
+import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.model.PlatformType;
 
 import java.nio.file.Path;
@@ -12,6 +12,6 @@ public interface LocalGameLibraryClient {
 
     String getPlatformName();
 
-    List<ScannedGameDTO> scan(Path libraryPath);
+    List<ScannedLocalGameDTO> scan(Path libraryPath);
 
 }

@@ -1,7 +1,7 @@
 package com.pantheon.backend.service;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
-import com.pantheon.backend.dto.ScannedGameDTO;
+import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.model.Game;
 import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
@@ -52,27 +52,27 @@ public class LibraryService {
         LocalGameLibraryClient scanner = scannerMap.get(platform.getName());
 
         if (scanner == null) {
-            throw new IllegalStateException("No scanner implementation found for type: " + platform.getType());
+            throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
         }
 
         logger.info("Starting scan for {} ...", platformName);
 
         for (String pathStr : platform.getLibraryPaths()) {
-            List<ScannedGameDTO> foundGames = scanner.scan(Path.of(pathStr));
+            List<ScannedLocalGameDTO> foundGames = scanner.scan(Path.of(pathStr));
 
             processScannedGames(foundGames, platform);
         }
     }
 
-    private void processScannedGames(List<ScannedGameDTO> scannedGames, Platform platform) {
-        for (ScannedGameDTO dto : scannedGames) {
+    private void processScannedGames(List<ScannedLocalGameDTO> scannedGames, Platform platform) {
+        for (ScannedLocalGameDTO dto : scannedGames) {
             Game game = findOrCreateGame(dto);
             createOrUpdateLibraryEntry(game, platform, dto);
         }
         logger.info("Processed {} games ", scannedGames.size());
     }
 
-    private Game findOrCreateGame(ScannedGameDTO dto) {
+    private Game findOrCreateGame(ScannedLocalGameDTO dto) {
 
         return gameRepository.findByTitle(dto.getTitle()).orElseGet(() -> {
             Game newGame = new Game();
@@ -81,7 +81,7 @@ public class LibraryService {
         });
     }
 
-    private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedGameDTO dto) {
+    private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedLocalGameDTO dto) {
 
         LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId()).orElseGet(() -> {
             LibraryEntry newEntry = new LibraryEntry();
