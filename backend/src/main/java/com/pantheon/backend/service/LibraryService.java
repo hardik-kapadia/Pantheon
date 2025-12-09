@@ -71,9 +71,9 @@ public class LibraryService {
 
     private Game findOrCreateGame(ScannedLocalGameDTO dto) {
 
-        return gameRepository.findByTitle(dto.getTitle()).orElseGet(() -> {
+        return gameRepository.findByTitle(dto.title()).orElseGet(() -> {
             Game newGame = new Game();
-            newGame.setTitle(dto.getTitle());
+            newGame.setTitle(dto.title());
             return gameRepository.save(newGame);
         });
     }
@@ -88,14 +88,14 @@ public class LibraryService {
         });
 
         entry.setInstalled(dto.isInstalled());
-        entry.setInstallPath(dto.getInstallPath());
-        entry.setPlatformGameId(dto.getPlatformGameId());
+        entry.setInstallPath(dto.installPath());
+        entry.setPlatformGameId(dto.platformGameId());
 
-        if (dto.getPlaytimeMinutes() != null) {
-            entry.setPlaytimeMinutes(dto.getPlaytimeMinutes());
+        if (dto.playtimeMinutes() != null) {
+            entry.setPlaytimeMinutes(dto.playtimeMinutes());
         }
-        if (dto.getLastPlayed() != null) {
-            entry.setLastPlayed(dto.getLastPlayed());
+        if (dto.lastPlayed() != null) {
+            entry.setLastPlayed(dto.lastPlayed());
         }
 
         libraryEntryRepository.save(entry);
