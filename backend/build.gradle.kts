@@ -26,10 +26,14 @@ repositories {
 
 dependencies {
 
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3'")
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.hibernate.orm:hibernate-community-dialects")
+    implementation("org.mapstruct:mapstruct:1.6.3")
 
     compileOnly("org.projectlombok:lombok")
 
@@ -37,7 +41,6 @@ dependencies {
 
     runtimeOnly("org.xerial:sqlite-jdbc")
 
-    annotationProcessor("org.projectlombok:lombok")
 
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")

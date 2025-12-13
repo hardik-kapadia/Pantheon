@@ -2,6 +2,7 @@ package com.pantheon.backend.service;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.mapper.GameMapper;
 import com.pantheon.backend.model.Game;
 import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
@@ -27,14 +28,16 @@ public class LibraryService {
     private final GameRepository gameRepository;
     private final LibraryEntryRepository libraryEntryRepository;
     private final Map<String, LocalGameLibraryClient> scannerMap;
+    private final GameMapper gameMapper;
 
     @Autowired
-    public LibraryService(PlatformRepository platformRepository, GameRepository gameRepository, LibraryEntryRepository libraryEntryRepository, List<LocalGameLibraryClient> scanners) {
+    public LibraryService(PlatformRepository platformRepository, GameRepository gameRepository, LibraryEntryRepository libraryEntryRepository, List<LocalGameLibraryClient> scanners, GameMapper gameMapper) {
+
         this.platformRepository = platformRepository;
         this.gameRepository = gameRepository;
         this.libraryEntryRepository = libraryEntryRepository;
+        this.gameMapper = gameMapper;
 
-        // Convert the List to a Map for fast lookup
         this.scannerMap = scanners.stream().collect(Collectors.toMap(LocalGameLibraryClient::getPlatformName, Function.identity()));
     }
 
@@ -72,8 +75,7 @@ public class LibraryService {
     private Game findOrCreateGame(ScannedLocalGameDTO dto) {
 
         return gameRepository.findByTitle(dto.title()).orElseGet(() -> {
-            Game newGame = new Game();
-            newGame.setTitle(dto.title());
+            Game newGame = gameMapper.toEntity(dto);
             return gameRepository.save(newGame);
         });
     }
