@@ -16,9 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,38 +24,36 @@ public class LibraryService {
     private final PlatformRepository platformRepository;
     private final GameRepository gameRepository;
     private final LibraryEntryRepository libraryEntryRepository;
-    private final Map<String, LocalGameLibraryClient> scannerMap;
     private final GameMapper gameMapper;
+    private final PlatformMapperService platformMapperService;
 
     @Autowired
-    public LibraryService(PlatformRepository platformRepository, GameRepository gameRepository, LibraryEntryRepository libraryEntryRepository, List<LocalGameLibraryClient> scanners, GameMapper gameMapper) {
+
+    public LibraryService(PlatformRepository platformRepository, GameRepository gameRepository, LibraryEntryRepository libraryEntryRepository, PlatformMapperService platformMapperService, GameMapper gameMapper) {
 
         this.platformRepository = platformRepository;
         this.gameRepository = gameRepository;
         this.libraryEntryRepository = libraryEntryRepository;
         this.gameMapper = gameMapper;
+        this.platformMapperService = platformMapperService;
 
-        this.scannerMap = scanners.stream().collect(Collectors.toMap(LocalGameLibraryClient::getPlatformName, Function.identity()));
     }
 
 
     @Transactional
-    public void scanPlatform(String platformName) {
+    public void scanPlatform(String platformName) throws IllegalArgumentException, IllegalStateException {
 
-        // 1. Find the Platform Config (e.g. "Steam") in DB
-        Platform platform = platformRepository.findByName(platformName).orElseThrow(() -> new IllegalArgumentException("Unknown platform: " + platformName));
+        log.info("Requesting scan for platform {}", platformName);
 
-        // 2. Find the correct Scanner Worker
-        LocalGameLibraryClient scanner = scannerMap.get(platform.getName());
+        Platform platform = platformRepository.findByName(platformName)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown platform: " + platformName));
 
-        if (scanner == null) {
-            throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
-        }
+        LocalGameLibraryClient localGameLibraryClient = platformMapperService.getScanner(platform);
 
-        log.info("Starting scan for {} ...", platformName);
+        log.info("Initializing scan for {} ...", platformName);
 
         for (String pathStr : platform.getLibraryPaths()) {
-            List<ScannedLocalGameDTO> foundGames = scanner.scan(Path.of(pathStr));
+            List<ScannedLocalGameDTO> foundGames = localGameLibraryClient.scan(Path.of(pathStr));
 
             processScannedGames(foundGames, platform);
         }
@@ -69,7 +64,7 @@ public class LibraryService {
             Game game = findOrCreateGame(dto);
             createOrUpdateLibraryEntry(game, platform, dto);
         }
-        log.info("Processed {} games ", scannedGames.size());
+        log.info("{}: Processed {} games ", platform.getName(), scannedGames.size());
     }
 
     private Game findOrCreateGame(ScannedLocalGameDTO dto) {
