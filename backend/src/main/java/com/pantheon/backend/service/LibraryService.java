@@ -64,18 +64,16 @@ public class LibraryService {
             LocalGameLibraryClient client = platformClientMapperService.getScanner(platform);
 
             // 1. Notify Start (We guess size is 0 initially, or you could estimate based on path count)
-            localScanNotificationOrchestrationService.notifyStart(platformName, 0);
+            localScanNotificationOrchestrationService.notifyStart(platformName);
 
             int totalGamesFound = 0;
 
             for (String pathStr : platform.getLibraryPaths()) {
-                // Scan the folder (Block until done)
+
                 List<ScannedLocalGameDTO> foundGames = client.scan(Path.of(pathStr));
 
-                // Process (DB Save)
                 processScannedGames(foundGames, platform);
 
-                // Notify (Send Batch)
                 localScanNotificationOrchestrationService.notifyBatch(platformName, foundGames);
 
                 totalGamesFound += foundGames.size();

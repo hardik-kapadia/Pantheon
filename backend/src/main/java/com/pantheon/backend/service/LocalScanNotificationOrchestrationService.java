@@ -6,6 +6,7 @@ import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
 import com.pantheon.backend.event.localscan.LocalScanStartedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,13 @@ import java.util.List;
 public class LocalScanNotificationOrchestrationService {
 
     private final ApplicationEventPublisher eventPublisher;
+
+    @Value("app.notification.batch.size")
     private static final int BATCH_SIZE = 100;
+
+    public void notifyStart(String platformName) {
+        notifyStart(platformName, 0);
+    }
 
     public void notifyStart(String platformName, int totalExpected) {
         log.info("Starting scan notification for {} (Expect ~{} games)", platformName, totalExpected);
@@ -25,15 +32,14 @@ public class LocalScanNotificationOrchestrationService {
     }
 
     public void notifyBatch(String platformName, List<ScannedLocalGameDTO> batch) {
+
         if (batch.isEmpty()) return;
 
-        // Optimization: If batch is small, send immediately
         if (batch.size() <= BATCH_SIZE) {
             eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, batch));
             return;
         }
 
-        // Safety: Split huge folders into bite-sized chunks
         int total = batch.size();
         for (int i = 0; i < total; i += BATCH_SIZE) {
             int end = Math.min(total, i + BATCH_SIZE);

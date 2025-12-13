@@ -22,3 +22,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+
+app:
+  notification:
+    batch:
+      size: 100

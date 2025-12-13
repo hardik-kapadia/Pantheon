@@ -6,6 +6,11 @@ import java.util.List;
 
 public record LocalScanBatchEvent(
         String platformName,
+        int gamesFound,
         List<ScannedLocalGameDTO> games
 ) {
+
+    public LocalScanBatchEvent(String platformName, List<ScannedLocalGameDTO> games) {
+        this(platformName, games.size(), games);
+    }
 }
