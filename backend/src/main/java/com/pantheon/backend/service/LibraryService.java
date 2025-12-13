@@ -11,6 +11,7 @@ import com.pantheon.backend.repository.LibraryEntryRepository;
 import com.pantheon.backend.repository.PlatformRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,39 +26,70 @@ public class LibraryService {
     private final GameRepository gameRepository;
     private final LibraryEntryRepository libraryEntryRepository;
     private final GameMapper gameMapper;
-    private final PlatformMapperService platformMapperService;
+    private final PlatformClientMapperService platformClientMapperService;
+    private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
 
     @Autowired
 
-    public LibraryService(PlatformRepository platformRepository, GameRepository gameRepository, LibraryEntryRepository libraryEntryRepository, PlatformMapperService platformMapperService, GameMapper gameMapper) {
+    public LibraryService(PlatformRepository platformRepository,
+                          GameRepository gameRepository,
+                          LibraryEntryRepository libraryEntryRepository,
+                          PlatformClientMapperService platformClientMapperService,
+                          GameMapper gameMapper,
+                          LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
 
         this.platformRepository = platformRepository;
         this.gameRepository = gameRepository;
         this.libraryEntryRepository = libraryEntryRepository;
         this.gameMapper = gameMapper;
-        this.platformMapperService = platformMapperService;
+        this.platformClientMapperService = platformClientMapperService;
+        this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
 
     }
 
-
+    /**
+     * @param platformName The name of the platform to scan
+     * @throws IllegalArgumentException for incorrect platform name
+     * @throws IllegalStateException    for correct platform name but no Scanner defined for it.
+     */
+    @Async
     @Transactional
-    public void scanPlatform(String platformName) throws IllegalArgumentException, IllegalStateException {
-
+    public void scanPlatform(String platformName) {
         log.info("Requesting scan for platform {}", platformName);
 
-        Platform platform = platformRepository.findByName(platformName)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown platform: " + platformName));
+        try {
+            Platform platform = platformRepository.findByName(platformName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown platform: " + platformName));
 
-        LocalGameLibraryClient localGameLibraryClient = platformMapperService.getScanner(platform);
+            LocalGameLibraryClient client = platformClientMapperService.getScanner(platform);
 
-        log.info("Initializing scan for {} ...", platformName);
+            // 1. Notify Start (We guess size is 0 initially, or you could estimate based on path count)
+            localScanNotificationOrchestrationService.notifyStart(platformName, 0);
 
-        for (String pathStr : platform.getLibraryPaths()) {
-            List<ScannedLocalGameDTO> foundGames = localGameLibraryClient.scan(Path.of(pathStr));
+            int totalGamesFound = 0;
 
-            processScannedGames(foundGames, platform);
+            for (String pathStr : platform.getLibraryPaths()) {
+                // Scan the folder (Block until done)
+                List<ScannedLocalGameDTO> foundGames = client.scan(Path.of(pathStr));
+
+                // Process (DB Save)
+                processScannedGames(foundGames, platform);
+
+                // Notify (Send Batch)
+                localScanNotificationOrchestrationService.notifyBatch(platformName, foundGames);
+
+                totalGamesFound += foundGames.size();
+            }
+
+            // 2. Notify Complete
+            localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound);
+
+        } catch (Exception e) {
+            log.error("Scan failed for {}", platformName, e);
+            localScanNotificationOrchestrationService.notifyError(platformName);
         }
     }
+
 
     private void processScannedGames(List<ScannedLocalGameDTO> scannedGames, Platform platform) {
         for (ScannedLocalGameDTO dto : scannedGames) {
