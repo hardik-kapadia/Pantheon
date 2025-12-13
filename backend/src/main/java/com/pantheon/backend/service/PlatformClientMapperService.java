@@ -12,13 +12,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class PlatformMapperService {
+public class PlatformClientMapperService {
 
 
     private final Map<String, LocalGameLibraryClient> localGameLibraryClientMap;
 
     @Autowired
-    public PlatformMapperService(List<LocalGameLibraryClient> localGameLibraryClients) {
+    public PlatformClientMapperService(List<LocalGameLibraryClient> localGameLibraryClients) {
         this.localGameLibraryClientMap = localGameLibraryClients.stream()
                 .collect(Collectors.toMap(com.pantheon.backend.client.LocalGameLibraryClient::getPlatformName, Function.identity()));
     }
