@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
 public class PlatformMapperService {
 
 
-    private final Map<String, LocalGameLibraryClient> scannerMap;
+    private final Map<String, LocalGameLibraryClient> localGameLibraryClientMap;
 
     @Autowired
-    public PlatformMapperService(List<LocalGameLibraryClient> scanners) {
-        this.scannerMap = scanners.stream()
-                .collect(Collectors.toMap(LocalGameLibraryClient::getPlatformName, Function.identity()));
+    public PlatformMapperService(List<LocalGameLibraryClient> localGameLibraryClients) {
+        this.localGameLibraryClientMap = localGameLibraryClients.stream()
+                .collect(Collectors.toMap(com.pantheon.backend.client.LocalGameLibraryClient::getPlatformName, Function.identity()));
     }
 
     public LocalGameLibraryClient getScanner(@NonNull Platform platform) throws IllegalStateException {
 
-        LocalGameLibraryClient scanner = scannerMap.get(platform.getName());
+        LocalGameLibraryClient scanner = localGameLibraryClientMap.get(platform.getName());
 
         if (scanner == null)
             throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
