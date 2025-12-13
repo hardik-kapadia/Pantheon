@@ -1,6 +1,7 @@
 package com.pantheon.backend.web;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -13,10 +14,15 @@ public class SsePubSub {
 
     private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
+    private final Long sseTimeout;
+
+    public SsePubSub(@Qualifier("sseTimeout") Long sseTimeout) {
+        this.sseTimeout = sseTimeout;
+    }
+
     public SseEmitter subscribe() {
 
-        // Timeout: 0 = Infinite (or managed by server config)
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter emitter = new SseEmitter(sseTimeout);
 
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));

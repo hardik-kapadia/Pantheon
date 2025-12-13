@@ -6,7 +6,7 @@ import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
 import com.pantheon.backend.event.localscan.LocalScanStartedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +14,18 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class LocalScanNotificationOrchestrationService {
 
     private final ApplicationEventPublisher eventPublisher;
+    private final int batchSize;
 
-    @Value("app.notification.batch.size")
-    private static final int BATCH_SIZE = 100;
+    public LocalScanNotificationOrchestrationService(
+            ApplicationEventPublisher eventPublisher,
+            @Qualifier("sseBatchSize") int batchSize // <--- Matches the @Bean name
+    ) {
+        this.eventPublisher = eventPublisher;
+        this.batchSize = batchSize;
+    }
 
     public void notifyStart(String platformName) {
         notifyStart(platformName, 0);
@@ -35,14 +40,14 @@ public class LocalScanNotificationOrchestrationService {
 
         if (batch.isEmpty()) return;
 
-        if (batch.size() <= BATCH_SIZE) {
+        if (batch.size() <= batchSize) {
             eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, batch));
             return;
         }
 
         int total = batch.size();
-        for (int i = 0; i < total; i += BATCH_SIZE) {
-            int end = Math.min(total, i + BATCH_SIZE);
+        for (int i = 0; i < total; i += batchSize) {
+            int end = Math.min(total, i + batchSize);
             List<ScannedLocalGameDTO> subList = batch.subList(i, end);
             eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, subList));
         }

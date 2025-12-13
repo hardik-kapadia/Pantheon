@@ -1,6 +1,9 @@
 spring:
   application:
     name: backend
+  mvc:
+    async:
+      request-timeout: 3600000
   threads:
     virtual:
       enabled: true
@@ -24,6 +27,7 @@ spring:
       ddl-auto: validate
 
 app:
-  notification:
+  sse:
     batch:
-      size: 100
+      size: 50
+    timeout: 0
