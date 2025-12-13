@@ -1,4 +1,4 @@
-package com.pantheon.backend.repositories;
+package com.pantheon.backend.repository;
 
 import com.pantheon.backend.model.Platform;
 import org.springframework.data.jpa.repository.JpaRepository;
