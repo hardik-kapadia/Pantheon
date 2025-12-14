@@ -45,6 +45,8 @@ public class LibraryServiceTest {
 
     // TODO: Add test for: Partial Success due to failure in notifying
     // TODO: Add test for: Complete Success with multiple library paths
+    // TODO: Add test for: Complete Scan Failure with multiple library paths
+    // TODO: Add test for: Complete Notification Failure with multiple library paths
 
     private static final Logger log = LoggerFactory.getLogger(LibraryServiceTest.class);
 
@@ -74,7 +76,7 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("scanPlatform should throw an Illegal Argument exception if invalid name is provided")
+    @DisplayName("Invalid Platform Name: scanPlatform should throw an Illegal Argument exception if invalid name is provided")
     void testInvalidPlatformName() {
 
         String invalidName = "XYZ";
@@ -86,7 +88,7 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("scanPlatform should throw IllegalStateException if the platform name is correct but no LocalLibraryClient has been mapped to it.")
+    @DisplayName("No LocalLibraryClient setup: scanPlatform should throw IllegalStateException if the platform name is correct but no LocalLibraryClient has been mapped to it.")
     void testNoLocalLibraryClient() {
 
         String platformName = "XYZ";
@@ -101,34 +103,15 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("scanPlatform should successfully scan games and notify the event listeners")
-    void testCompleteSuccess() throws IOException {
+    @DisplayName("Complete Success with one library path: scanPlatform should successfully scan games and notify the event listeners")
+    void testCompleteSuccessWithOneLibrary() throws IOException {
 
         String platformName = "Steam";
+        Platform platform = getDummyPlatform(platformName, List.of("C:/Games/Steam/common"));
 
-        Platform platform = Platform.builder()
-                .name(platformName)
-                .libraryPaths(List.of("C:/Games/Steam/common"))
-                .id(1)
-                .build();
+        ScannedLocalGameDTO game1DTO = getDummyGame1DTO(platformName);
 
-        ScannedLocalGameDTO game1DTO = ScannedLocalGameDTO.builder()
-                .title("Elden Ring")
-                .platformGameId("12")
-                .platformName(platformName)
-                .isInstalled(true)
-                .installPath("C:/Games/Steam/common/Elden Ring")
-                .playtimeMinutes(1200)
-                .lastPlayed(LocalDateTime.of(2025, 10, 15, 20, 30))
-                .build();
-
-        ScannedLocalGameDTO game2DTO = ScannedLocalGameDTO.builder()
-                .title("Dark Souls 3")
-                .platformName(platformName)
-                .platformGameId("32")
-                .isInstalled(true)
-                .installPath("C:/Games/Steam/common/Elden Ring")
-                .build();
+        ScannedLocalGameDTO game2DTO = getDummyGame2DTO(platformName, "C:/Games/Steam/common/Dark Souls 3");
 
         List<ScannedLocalGameDTO> foundGames = Arrays.asList(game1DTO, game2DTO);
 
@@ -181,36 +164,17 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("scanPlatform should successfully scan games in some, not all libraries and notify the event listeners")
+    @DisplayName("Partial Success due to Scan Failures: scanPlatform should successfully scan games in some, but not all libraries and notify the event listeners accordingly")
     void testPartialSuccessDueToScanFailure() throws IOException {
 
         String platformName = "Steam";
 
         List<String> libraryPaths = List.of("C:/Games/Steam", "D:/My Games/Steam");
 
-        Platform platform = Platform.builder()
-                .name(platformName)
-                .libraryPaths(libraryPaths)
-                .id(1)
-                .build();
+        Platform platform = getDummyPlatform(platformName, libraryPaths);
 
-        ScannedLocalGameDTO game1DTO = ScannedLocalGameDTO.builder()
-                .title("Elden Ring")
-                .platformGameId("12")
-                .platformName(platformName)
-                .isInstalled(true)
-                .installPath("C:/Games/Steam/common/Elden Ring")
-                .playtimeMinutes(1200)
-                .lastPlayed(LocalDateTime.of(2025, 10, 15, 20, 30))
-                .build();
-
-        ScannedLocalGameDTO game2DTO = ScannedLocalGameDTO.builder()
-                .title("Dark Souls 3")
-                .platformName(platformName)
-                .platformGameId("32")
-                .isInstalled(true)
-                .installPath("D:/My Games/Steam/common/Elden Ring")
-                .build();
+        ScannedLocalGameDTO game1DTO = getDummyGame1DTO(platformName);
+        ScannedLocalGameDTO game2DTO = getDummyGame2DTO(platformName, "D:/My Games/Steam/common/Dark Souls 3");
 
         List<ScannedLocalGameDTO> gamesInLibrary1 = List.of(game1DTO);
         List<ScannedLocalGameDTO> gamesInLibrary2 = List.of(game2DTO);
@@ -259,8 +223,8 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("scanPlatform should catch the IO Exception and notify an error to via the OrchestrationService")
-    void testScanFailure() throws IOException {
+    @DisplayName("Scan Failure with only one library path: scanPlatform should catch the IO Exception and notify an error to via the OrchestrationService")
+    void testScanFailureForSingleLibraryPath() throws IOException {
 
         String platformName = "Steam";
         List<String> libraryPaths = List.of("C:/Games/Steam/common");
@@ -300,7 +264,7 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("scanPlatform should catch the IO Exception and notify an error to via the OrchestrationService")
+    @DisplayName("Notification Failure with only one library path: scanPlatform should catch the IO Exception and notify an error to via the OrchestrationService")
     void testNotificationFailure() throws IOException {
 
         String platformName = "Steam";
@@ -338,6 +302,37 @@ public class LibraryServiceTest {
 
         }
 
+    }
+
+    private ScannedLocalGameDTO getDummyGame1DTO(String platformName) {
+        return ScannedLocalGameDTO.builder()
+                .title("Elden Ring")
+                .platformGameId("12")
+                .platformName(platformName)
+                .isInstalled(true)
+                .installPath("C:/Games/Steam/common/Elden Ring")
+                .playtimeMinutes(1200)
+                .lastPlayed(LocalDateTime.of(2025, 10, 15, 20, 30))
+                .build();
+    }
+
+    private ScannedLocalGameDTO getDummyGame2DTO(String platformName, String installPath) {
+        return ScannedLocalGameDTO.builder()
+                .title("Dark Souls 3")
+                .platformName(platformName)
+                .platformGameId("32")
+                .isInstalled(true)
+                .installPath(installPath)
+                .build();
+    }
+
+    private Platform getDummyPlatform(String platformName, List<String> libraryPaths) {
+
+        return Platform.builder()
+                .name(platformName)
+                .libraryPaths(libraryPaths)
+                .id(1)
+                .build();
     }
 
 
