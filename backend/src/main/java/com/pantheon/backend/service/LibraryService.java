@@ -133,10 +133,11 @@ public class LibraryService {
 
     private Game findOrCreateGame(ScannedLocalGameDTO dto) {
 
-        return gameRepository.findByTitle(dto.title()).orElseGet(() -> {
-            Game newGame = gameMapper.toEntity(dto);
-            return gameRepository.save(newGame);
-        });
+        return gameRepository.findByTitle(dto.title()).orElseGet(
+                () -> {
+                    Game newGame = gameMapper.toEntity(dto);
+                    return gameRepository.save(newGame);
+                });
     }
 
     private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedLocalGameDTO dto) {

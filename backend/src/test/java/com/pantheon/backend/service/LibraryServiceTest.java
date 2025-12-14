@@ -43,6 +43,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class LibraryServiceTest {
 
+    // TODO: Add test for: Partial Success due to failure in notifying
+    // TODO: Add test for: Complete Success with multiple library paths
+
     private static final Logger log = LoggerFactory.getLogger(LibraryServiceTest.class);
 
     @Mock
@@ -99,7 +102,7 @@ public class LibraryServiceTest {
 
     @Test
     @DisplayName("scanPlatform should successfully scan games and notify the event listeners")
-    void testSuccess() throws IOException {
+    void testCompleteSuccess() throws IOException {
 
         String platformName = "Steam";
 
@@ -171,6 +174,84 @@ public class LibraryServiceTest {
             verify(libraryEntryRepository, times(2)).save(any(LibraryEntry.class));
             verify(localScanNotificationOrchestrationService, times(1)).notifyBatch(platformName, foundGames);
             verify(localScanNotificationOrchestrationService, times(1)).notifyComplete(platformName, 2);
+            verify(localScanNotificationOrchestrationService, never()).notifyError(anyString(), anyInt(), anyList());
+
+        }
+
+    }
+
+    @Test
+    @DisplayName("scanPlatform should successfully scan games in some, not all libraries and notify the event listeners")
+    void testPartialSuccessDueToScanFailure() throws IOException {
+
+        String platformName = "Steam";
+
+        List<String> libraryPaths = List.of("C:/Games/Steam", "D:/My Games/Steam");
+
+        Platform platform = Platform.builder()
+                .name(platformName)
+                .libraryPaths(libraryPaths)
+                .id(1)
+                .build();
+
+        ScannedLocalGameDTO game1DTO = ScannedLocalGameDTO.builder()
+                .title("Elden Ring")
+                .platformGameId("12")
+                .platformName(platformName)
+                .isInstalled(true)
+                .installPath("C:/Games/Steam/common/Elden Ring")
+                .playtimeMinutes(1200)
+                .lastPlayed(LocalDateTime.of(2025, 10, 15, 20, 30))
+                .build();
+
+        ScannedLocalGameDTO game2DTO = ScannedLocalGameDTO.builder()
+                .title("Dark Souls 3")
+                .platformName(platformName)
+                .platformGameId("32")
+                .isInstalled(true)
+                .installPath("D:/My Games/Steam/common/Elden Ring")
+                .build();
+
+        List<ScannedLocalGameDTO> gamesInLibrary1 = List.of(game1DTO);
+        List<ScannedLocalGameDTO> gamesInLibrary2 = List.of(game2DTO);
+
+        LibraryEntry game1Entry = mock(LibraryEntry.class);
+
+        Game game1Mock = mock(Game.class);
+        when(game1Mock.getId()).thenReturn(1);
+
+        LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
+
+        when(clientMock.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(gamesInLibrary1);
+        when(clientMock.scan(Path.of(platform.getLibraryPaths().getLast()))).thenThrow(IOException.class);
+
+        when(platformRepository.findByName(platformName)).thenReturn(Optional.of(platform));
+
+        when(platformClientMapperService.getScanner(platform)).thenReturn(clientMock);
+
+        when(gameRepository.findByTitle(game1DTO.title())).thenReturn(Optional.of(game1Mock));
+
+        when(libraryEntryRepository.findByGameIdAndPlatformId(1, 1)).thenReturn(Optional.of(game1Entry));
+
+        when(libraryEntryRepository.save(any(LibraryEntry.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
+
+            libraryService.scanPlatform(platformName);
+
+            verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
+            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
+            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getLast()));
+            verify(gameMapper, never()).toEntity(game2DTO);
+            verify(gameRepository, times(1)).findByTitle(anyString());
+            verify(libraryEntryRepository, times(1)).findByGameIdAndPlatformId(1, 1);
+            assertEquals(0, mockedConstruction.constructed().size());
+            verify(game1Entry, never()).setGame(any(Game.class));
+            verify(game1Entry, never()).setPlatform(any(Platform.class));
+            verify(libraryEntryRepository, times(1)).save(any(LibraryEntry.class));
+            verify(localScanNotificationOrchestrationService, times(1)).notifyBatch(platformName, gamesInLibrary1);
+            verify(localScanNotificationOrchestrationService, never()).notifyBatch(platformName, gamesInLibrary2);
+            verify(localScanNotificationOrchestrationService, times(1)).notifyComplete(eq(platformName), eq(1), eq(1), eq(List.of("D:/My Games/Steam")));
             verify(localScanNotificationOrchestrationService, never()).notifyError(anyString(), anyInt(), anyList());
 
         }
