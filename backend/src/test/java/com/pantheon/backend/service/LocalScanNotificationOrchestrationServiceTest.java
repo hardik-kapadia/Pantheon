@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,16 +29,20 @@ public class LocalScanNotificationOrchestrationServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    private Random random;
+
     private LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
 
     @BeforeEach
     void setUp() {
         localScanNotificationOrchestrationService = new LocalScanNotificationOrchestrationService(eventPublisher, 50);
+        random = new Random(51);
     }
 
     @Test
     @DisplayName("Should emit one batch event if games count is less than batch size")
     void testSmallBatch() {
+
         List<ScannedLocalGameDTO> games = createDummyGames(10);
 
         localScanNotificationOrchestrationService.notifyBatch("Steam", games);
@@ -54,6 +59,7 @@ public class LocalScanNotificationOrchestrationServiceTest {
         localScanNotificationOrchestrationService.notifyBatch("Steam", games);
 
         ArgumentCaptor<LocalScanBatchEvent> captor = ArgumentCaptor.forClass(LocalScanBatchEvent.class);
+
         verify(eventPublisher, times(3)).publishEvent(captor.capture());
 
         List<LocalScanBatchEvent> capturedEvents = captor.getAllValues();
@@ -69,9 +75,11 @@ public class LocalScanNotificationOrchestrationServiceTest {
         localScanNotificationOrchestrationService.notifyComplete("GOG", 500);
 
         ArgumentCaptor<LocalScanCompletedEvent> captor = ArgumentCaptor.forClass(LocalScanCompletedEvent.class);
+
         verify(eventPublisher).publishEvent(captor.capture());
 
         LocalScanCompletedEvent event = captor.getValue();
+
         assertEquals("GOG", event.platformName());
         assertEquals(500, event.finalCount());
         assertTrue(event.success());
@@ -81,8 +89,8 @@ public class LocalScanNotificationOrchestrationServiceTest {
         List<ScannedLocalGameDTO> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             list.add(ScannedLocalGameDTO.builder()
-                    .title("Game " + i)
-                    .isInstalled(true)
+                    .title("Game " + random.nextInt(count * 100))
+                    .isInstalled(random.nextBoolean())
                     .build());
         }
         return list;
