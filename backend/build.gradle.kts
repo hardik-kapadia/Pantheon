@@ -56,4 +56,5 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("--enable-preview", "-XX:+EnableDynamicAgentLoading")
 }

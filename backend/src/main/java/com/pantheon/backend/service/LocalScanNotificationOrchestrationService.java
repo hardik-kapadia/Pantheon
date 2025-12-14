@@ -31,7 +31,7 @@ public class LocalScanNotificationOrchestrationService {
     }
 
     public void notifyStart(String platformName, int totalExpected) {
-        log.info("Starting scan notification for {} (Expect ~{} games)", platformName, totalExpected);
+        log.info("{}: Starting scan notification (Expect ~{} games)", platformName, totalExpected);
         eventPublisher.publishEvent(new LocalScanStartedEvent(platformName, totalExpected));
     }
 
@@ -39,26 +39,31 @@ public class LocalScanNotificationOrchestrationService {
 
         if (batch.isEmpty()) return;
 
-        if (batch.size() <= batchSize) {
-            eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, batch));
-            return;
-        }
+        log.info("{}: Starting batch event for {} games", platformName, batch.size());
 
-        int total = batch.size();
-        for (int i = 0; i < total; i += batchSize) {
-            int end = Math.min(total, i + batchSize);
-            List<ScannedLocalGameDTO> subList = batch.subList(i, end);
-            eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, subList));
+        if (batch.size() <= batchSize) {
+            log.info("{}: Publishing all {} games", platformName, batch.size());
+            eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, batch));
+        } else {
+
+            int total = batch.size();
+
+            for (int i = 0, batchCount = 1; i < total; i += batchSize, batchCount++) {
+                int end = Math.min(total, i + batchSize);
+                List<ScannedLocalGameDTO> subList = batch.subList(i, end);
+                log.info("{}: Publishing Batch {} - {} games", platformName, batchCount, subList.size());
+                eventPublisher.publishEvent(new LocalScanBatchEvent(platformName, subList));
+            }
         }
     }
 
     public void notifyComplete(String platformName, int finalCount) {
-        log.info("Scan complete for {}. Total processed: {}", platformName, finalCount);
+        log.info("{}: Scan complete. Total processed: {}", platformName, finalCount);
         eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, finalCount, true));
     }
 
     public void notifyError(String platformName) {
-        log.error("Scan failed for {}", platformName);
+        log.error("{}: Scan failed", platformName);
         eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, 0, false));
     }
 }
