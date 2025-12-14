@@ -63,7 +63,6 @@ public class LibraryService {
 
             LocalGameLibraryClient client = platformClientMapperService.getScanner(platform);
 
-            // 1. Notify Start (We guess size is 0 initially, or you could estimate based on path count)
             localScanNotificationOrchestrationService.notifyStart(platformName);
 
             int totalGamesFound = 0;
@@ -79,7 +78,6 @@ public class LibraryService {
                 totalGamesFound += foundGames.size();
             }
 
-            // 2. Notify Complete
             localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound);
 
         } catch (Exception e) {

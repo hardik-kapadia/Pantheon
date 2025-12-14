@@ -19,7 +19,6 @@ public class LibraryController {
     private final LibraryService libraryService;
     private final SsePubSub ssePubSub;
 
-    // 1. The Trigger
     @PostMapping("/scan/{platform}")
     public ResponseEntity<String> triggerScan(@PathVariable String platform) {
         // Fire and forget (Async)
@@ -27,7 +26,6 @@ public class LibraryController {
         return ResponseEntity.accepted().body("Scan initiated for " + platform);
     }
 
-    // 2. The Stream
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamEvents() {
         return ssePubSub.subscribe();
