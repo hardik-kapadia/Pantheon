@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -58,12 +59,16 @@ public class LocalScanNotificationOrchestrationService {
     }
 
     public void notifyComplete(String platformName, int finalCount) {
-        log.info("{}: Scan complete. Total processed: {}", platformName, finalCount);
-        eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, finalCount, true));
+        notifyComplete(platformName, finalCount, 0, new ArrayList<>());
     }
 
-    public void notifyError(String platformName) {
+    public void notifyComplete(String platformName, int finalCount, int failedPathsCount, List<String> failedPaths) {
+        log.info("{}: Scan complete. Total processed: {}", platformName, finalCount);
+        eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, finalCount, true, failedPathsCount, failedPaths));
+    }
+
+    public void notifyError(String platformName, int failedPathsCount, List<String> failedPaths) {
         log.error("{}: Scan failed", platformName);
-        eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, 0, false));
+        eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, 0, false, failedPathsCount, failedPaths));
     }
 }

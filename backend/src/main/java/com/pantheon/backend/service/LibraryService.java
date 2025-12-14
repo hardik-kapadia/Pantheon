@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -54,36 +55,71 @@ public class LibraryService {
      */
     @Async
     @Transactional
-    public void scanPlatform(String platformName) {
+    public void scanPlatform(String platformName) throws IllegalStateException, IllegalArgumentException {
         log.info("Requesting scan for platform {}", platformName);
 
-        try {
-            Platform platform = platformRepository.findByName(platformName)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown platform: " + platformName));
+        Platform platform = platformRepository.findByName(platformName)
+                .orElseThrow(() -> {
+                    log.error("Unknown Platform: {}", platformName);
+                    return new IllegalArgumentException("Unknown platform: " + platformName);
+                });
 
-            LocalGameLibraryClient client = platformClientMapperService.getScanner(platform);
+        LocalGameLibraryClient client = platformClientMapperService.getScanner(platform);
 
-            localScanNotificationOrchestrationService.notifyStart(platformName);
+        String phase = "Initializing";
 
-            int totalGamesFound = 0;
+        List<String> libraryPaths = platform.getLibraryPaths();
 
-            for (String pathStr : platform.getLibraryPaths()) {
+        if (libraryPaths == null || libraryPaths.isEmpty()) {
+            log.error("{}: No Library Paths Configured", platformName);
+            throw new IllegalStateException("No libraries paths configured");
+        }
+
+        localScanNotificationOrchestrationService.notifyStart(platformName);
+
+        List<String> failedPaths = new ArrayList<>();
+
+        int totalGamesFound = 0;
+
+        for (String pathStr : libraryPaths) {
+
+            log.info("{}: Initializing scan for path: {}", platformName, pathStr);
+
+            try {
+
+                phase = "Scanning";
 
                 List<ScannedLocalGameDTO> foundGames = client.scan(Path.of(pathStr));
 
+                phase = "Processing";
+
                 processScannedGames(foundGames, platform);
+
+                phase = "Sending";
 
                 localScanNotificationOrchestrationService.notifyBatch(platformName, foundGames);
 
                 totalGamesFound += foundGames.size();
+
+                log.info("{}: Scan Succeeded for path {}", platformName, pathStr);
+
+            } catch (Exception e) {
+                log.error("{}: Scan failed for path {} in phase {} with exception: {}", platformName, pathStr, phase, e.getMessage(), e);
+                failedPaths.add(pathStr);
             }
-
-            localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound);
-
-        } catch (Exception e) {
-            log.error("Scan failed for {}", platformName, e);
-            localScanNotificationOrchestrationService.notifyError(platformName);
         }
+
+        if (failedPaths.size() == platform.getLibraryPaths().size()) {
+            log.error("{}: Scan failed for all paths", platformName);
+            localScanNotificationOrchestrationService.notifyError(platformName, failedPaths.size(), failedPaths);
+        } else if (failedPaths.isEmpty()) {
+            log.info("{}: Scan completed, totalPaths: {}, all succeeded", platformName, libraryPaths.size());
+            localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound);
+        } else {
+            log.info("{}: Scan completed, totalPaths: {}, failed: {}", platformName, libraryPaths.size(), failedPaths);
+            localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound, failedPaths.size(), failedPaths);
+        }
+
     }
 
 
@@ -105,12 +141,13 @@ public class LibraryService {
 
     private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedLocalGameDTO dto) {
 
-        LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId()).orElseGet(() -> {
-            LibraryEntry newEntry = new LibraryEntry();
-            newEntry.setGame(game);
-            newEntry.setPlatform(platform);
-            return newEntry;
-        });
+        LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId())
+                .orElseGet(() -> {
+                    LibraryEntry newEntry = new LibraryEntry();
+                    newEntry.setGame(game);
+                    newEntry.setPlatform(platform);
+                    return newEntry;
+                });
 
         entry.setInstalled(dto.isInstalled());
         entry.setInstallPath(dto.installPath());

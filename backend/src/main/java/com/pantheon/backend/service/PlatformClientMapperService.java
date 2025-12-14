@@ -3,6 +3,7 @@ package com.pantheon.backend.service;
 import com.pantheon.backend.client.LocalGameLibraryClient;
 import com.pantheon.backend.model.Platform;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PlatformClientMapperService {
 
 
@@ -27,8 +29,10 @@ public class PlatformClientMapperService {
 
         LocalGameLibraryClient scanner = localGameLibraryClientMap.get(platform.getName());
 
-        if (scanner == null)
+        if (scanner == null) {
+            log.error("No LibraryClient found for platform {}", platform.getName());
             throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
+        }
 
         return scanner;
     }

@@ -40,6 +40,12 @@ public class LocalScanNotificationOrchestrationServiceTest {
     }
 
     @Test
+    @DisplayName("Should successfully emit the start notification")
+    void testStart() {
+
+    }
+
+    @Test
     @DisplayName("Should emit one batch event if games count is less than batch size")
     void testSmallBatch() {
 
