@@ -58,3 +58,21 @@ tasks.withType<Test> {
     useJUnitPlatform()
     jvmArgs("--enable-preview", "-XX:+EnableDynamicAgentLoading")
 }
+
+tasks.register("testThenBuild") {
+    group = "build"
+    description = "Runs all tests, and if successful, builds the project."
+    dependsOn("build")
+}
+
+tasks.register("testThenRun") {
+    group = "application"
+    description = "Runs all tests, and if successful, starts the application."
+
+    // We want both tasks to happen
+    dependsOn("test", "bootRun")
+}
+
+tasks.named("bootRun") {
+    mustRunAfter("test")
+}
