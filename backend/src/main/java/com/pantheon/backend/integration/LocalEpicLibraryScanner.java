@@ -6,7 +6,6 @@ import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.PlatformType;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
