@@ -8,7 +8,7 @@ public record LocalScanBatchEvent(
         String platformName,
         int gamesFound,
         List<ScannedLocalGameDTO> games
-) {
+) implements LocalScanEvent {
 
     public LocalScanBatchEvent(String platformName, List<ScannedLocalGameDTO> games) {
         this(platformName, games.size(), games);

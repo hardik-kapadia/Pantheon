@@ -2,6 +2,7 @@ package com.pantheon.backend.service;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.mapper.GameMapper;
 import com.pantheon.backend.model.Game;
 import com.pantheon.backend.model.LibraryEntry;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +105,7 @@ public class LibraryService {
 
                 log.info("{}: Scan Succeeded for path {}", platformName, pathStr);
 
-            } catch (Exception e) {
+            } catch (ScanFailureException e) {
                 log.error("{}: Scan failed for path {} in phase {} with exception: {}", platformName, pathStr, phase, e.getMessage(), e);
                 failedPaths.add(pathStr);
             }

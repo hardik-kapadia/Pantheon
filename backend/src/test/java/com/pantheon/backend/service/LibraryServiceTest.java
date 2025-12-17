@@ -2,6 +2,7 @@ package com.pantheon.backend.service;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.mapper.GameMapper;
 import com.pantheon.backend.model.Game;
 import com.pantheon.backend.model.LibraryEntry;
@@ -110,7 +111,6 @@ public class LibraryServiceTest {
         Platform platform = getDummyPlatform(platformName, List.of("C:/Games/Steam/common"));
 
         ScannedLocalGameDTO game1DTO = getDummyGame1DTO(platformName);
-
         ScannedLocalGameDTO game2DTO = getDummyGame2DTO(platformName, "C:/Games/Steam/common/Dark Souls 3");
 
         List<ScannedLocalGameDTO> foundGames = Arrays.asList(game1DTO, game2DTO);
@@ -119,6 +119,7 @@ public class LibraryServiceTest {
 
         Game game1Mock = mock(Game.class);
         when(game1Mock.getId()).thenReturn(1);
+
         Game game2Mock = mock(Game.class);
         when(game2Mock.getId()).thenReturn(2);
 
@@ -141,6 +142,7 @@ public class LibraryServiceTest {
         when(libraryEntryRepository.findByGameIdAndPlatformId(1, 1)).thenReturn(Optional.of(game1Entry));
 
         when(libraryEntryRepository.save(any(LibraryEntry.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
             libraryService.scanPlatform(platformName);
@@ -187,7 +189,7 @@ public class LibraryServiceTest {
         LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
 
         when(clientMock.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(gamesInLibrary1);
-        when(clientMock.scan(Path.of(platform.getLibraryPaths().getLast()))).thenThrow(IOException.class);
+        when(clientMock.scan(Path.of(platform.getLibraryPaths().getLast()))).thenThrow(ScanFailureException.class);
 
         when(platformRepository.findByName(platformName)).thenReturn(Optional.of(platform));
 
@@ -223,8 +225,8 @@ public class LibraryServiceTest {
     }
 
     @Test
-    @DisplayName("Scan Failure with only one library path: scanPlatform should catch the IO Exception and notify an error to via the OrchestrationService")
-    void testScanFailureForSingleLibraryPath() throws IOException {
+    @DisplayName("Scan Failure with only one library path: scanPlatform should catch the Scan Exception and notify an error to via the OrchestrationService")
+    void testCompleteFailureForSingleLibraryPathDueToScanFailure() throws IOException {
 
         String platformName = "Steam";
         List<String> libraryPaths = List.of("C:/Games/Steam/common");
@@ -237,7 +239,7 @@ public class LibraryServiceTest {
 
         LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
 
-        when(clientMock.scan(any(Path.class))).thenThrow(IOException.class);
+        when(clientMock.scan(any(Path.class))).thenThrow(ScanFailureException.class);
 
         when(platformRepository.findByName(platformName)).thenReturn(Optional.of(platform));
 
@@ -265,7 +267,7 @@ public class LibraryServiceTest {
 
     @Test
     @DisplayName("Notification Failure with only one library path: scanPlatform should catch the IO Exception and notify an error to via the OrchestrationService")
-    void testNotificationFailure() throws IOException {
+    void tesNotificationFailureForSingleLibraryPath() throws IOException {
 
         String platformName = "Steam";
         List<String> libraryPaths = List.of("C:/Games/Steam/common");
@@ -278,7 +280,7 @@ public class LibraryServiceTest {
 
         LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
 
-        when(clientMock.scan(any(Path.class))).thenThrow(IOException.class);
+        when(clientMock.scan(any(Path.class))).thenThrow(ScanFailureException.class);
 
         when(platformRepository.findByName(platformName)).thenReturn(Optional.of(platform));
 

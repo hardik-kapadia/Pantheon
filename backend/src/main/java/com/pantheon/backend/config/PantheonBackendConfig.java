@@ -15,9 +15,18 @@ public class PantheonBackendConfig {
     @Value("${app.sse.timeout:0}")
     private Long sseTimeout;
 
+    @Value("${app.sse.tries.max:3}")
+    private int maxTries;
+
     @Bean(name = "sseBatchSize")
     public int getSseBatchSize() {
         return sseBatchSize;
+    }
+
+
+    @Bean(name = "maxSize")
+    public int getMaxTries() {
+        return maxTries;
     }
 
     @Bean(name = "sseTimeout")

@@ -21,7 +21,7 @@ public class LocalScanNotificationOrchestrationService {
 
     public LocalScanNotificationOrchestrationService(
             ApplicationEventPublisher eventPublisher,
-            @Qualifier("sseBatchSize") int batchSize // <--- Matches the @Bean name
+            @Qualifier("sseBatchSize") int batchSize
     ) {
         this.eventPublisher = eventPublisher;
         this.batchSize = batchSize;

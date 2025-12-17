@@ -2,10 +2,10 @@ package com.pantheon.backend.integration;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.PlatformType;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +24,7 @@ class LocalSteamLibraryScanner implements LocalGameLibraryClient {
     }
 
     @Override
-    public List<ScannedLocalGameDTO> scan(Path libraryPath) throws IOException {
+    public List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException {
         System.out.println("🔎 Steam Scanner: Analyzing VDF files in " + libraryPath);
 
         // MOCK DATA: Simulating a found game.

@@ -8,5 +8,5 @@ public record LocalScanCompletedEvent(
         boolean success,
         int failedPathsCount,
         List<String> failedPaths
-) {
+) implements LocalScanEvent {
 }

@@ -2,6 +2,7 @@ package com.pantheon.backend.integration;
 
 import com.pantheon.backend.client.LocalGameLibraryClient;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.PlatformType;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ class LocalEpicLibraryScanner implements LocalGameLibraryClient {
     }
 
     @Override
-    public List<ScannedLocalGameDTO> scan(Path libraryPath) throws IOException {
+    public List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException {
         return List.of();
     }
 }

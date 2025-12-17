@@ -1,5 +1,6 @@
 package com.pantheon.backend.web;
 
+import com.pantheon.backend.event.localscan.LocalScanEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class SsePubSub {
 
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError((e) -> emitters.remove(emitter));
+        emitter.onError((_) -> emitters.remove(emitter));
 
         emitters.add(emitter);
         log.info("New SSE client subscribed. Active clients: {}", emitters.size());
@@ -37,15 +38,21 @@ public class SsePubSub {
         if (emitters.isEmpty()) return;
 
         SseEmitter.SseEventBuilder event = SseEmitter.event()
-                .name(eventName) // e.g., "SCAN_BATCH"
+                .name(eventName)
                 .data(payload);
 
-        // Send to all clients (Electron)
         for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(event);
             } catch (IOException e) {
                 emitters.remove(emitter);
+
+                if (event instanceof LocalScanEvent) {
+                    log.error("Failed to broadcast to emitter for {}:{}", ((LocalScanEvent) event).platformName(), eventName, e);
+                } else {
+                    log.error("Failed to broadcast {} ", eventName, e);
+                }
+
             }
         }
     }
