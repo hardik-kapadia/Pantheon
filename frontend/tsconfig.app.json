@@ -12,7 +12,7 @@
     "types": [
       "vite/client",
       "./types",
-      "./ui/react-types"
+      "./src/ui/types-react"
     ],
     "skipLibCheck": true,
     /* Bundler mode */

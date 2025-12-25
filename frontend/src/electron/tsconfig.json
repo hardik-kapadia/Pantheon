@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "types": [
       "../../types",
-      "./electron-types"
+      "./types-electron"
     ]
   }
 }
