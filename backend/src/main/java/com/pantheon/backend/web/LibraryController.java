@@ -21,7 +21,6 @@ public class LibraryController {
 
     @PostMapping("/scan/{platform}")
     public ResponseEntity<String> triggerScan(@PathVariable String platform) {
-        // Fire and forget (Async)
         libraryService.scanPlatform(platform);
         return ResponseEntity.accepted().body("Scan initiated for " + platform);
     }
