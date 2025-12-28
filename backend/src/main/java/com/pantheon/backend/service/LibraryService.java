@@ -33,6 +33,12 @@ public class LibraryService {
 
     @Async
     @Transactional
+    public void scanPlatforms() throws IllegalStateException, IllegalArgumentException {
+        scanPlatforms(null);
+    }
+
+    @Async
+    @Transactional
     public void scanPlatforms(String[] platforms) throws IllegalStateException, IllegalArgumentException {
 
         List<Platform> platformList;

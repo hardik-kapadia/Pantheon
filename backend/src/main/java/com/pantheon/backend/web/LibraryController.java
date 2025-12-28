@@ -29,8 +29,14 @@ public class LibraryController {
 
     @PostMapping("/scan/{platforms}")
     public ResponseEntity<String> scanPlatforms(@PathVariable String[] platforms) {
-//        libraryService.scanPlatform(platform);
+        libraryService.scanPlatforms(platforms);
         return ResponseEntity.accepted().body("Scan initiated for " + Arrays.toString(platforms));
+    }
+
+    @PostMapping("/scan")
+    public ResponseEntity<String> scanPlatforms() {
+        libraryService.scanPlatforms();
+        return ResponseEntity.accepted().body("Scan initiated for all Platforms");
     }
 
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
