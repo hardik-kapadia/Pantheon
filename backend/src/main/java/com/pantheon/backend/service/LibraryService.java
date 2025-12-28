@@ -14,6 +14,7 @@ import java.util.Objects;
 
 @Slf4j
 @Service
+@Transactional
 public class LibraryService {
 
     private final PlatformRepository platformRepository;
@@ -32,13 +33,11 @@ public class LibraryService {
     }
 
     @Async
-    @Transactional
     public void scanPlatforms() throws IllegalStateException, IllegalArgumentException {
         scanPlatforms(null);
     }
 
     @Async
-    @Transactional
     public void scanPlatforms(String[] platforms) throws IllegalStateException, IllegalArgumentException {
 
         List<Platform> platformList;
@@ -71,7 +70,6 @@ public class LibraryService {
      * @throws IllegalStateException    for correct platform name but no Scanner defined for it.
      */
     @Async
-    @Transactional
     public void scanPlatform(String platformName) throws IllegalStateException, IllegalArgumentException {
         log.info("Requesting scan for platform {}", platformName);
 
