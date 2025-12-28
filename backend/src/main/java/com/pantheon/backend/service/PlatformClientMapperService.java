@@ -30,7 +30,7 @@ public class PlatformClientMapperService {
         LocalGameLibraryClient scanner = localGameLibraryClientMap.get(platform.getName());
 
         if (scanner == null) {
-            log.error("No LibraryClient found for platform {}", platform.getName());
+            log.error("{}: No LibraryClient found ", platform.getName());
             throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
         }
 

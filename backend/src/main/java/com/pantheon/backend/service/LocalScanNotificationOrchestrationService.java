@@ -1,6 +1,7 @@
 package com.pantheon.backend.service;
 
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.event.localscan.LocalScanErrorEvent;
 import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
 import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
 import com.pantheon.backend.event.localscan.LocalScanStartedEvent;
@@ -70,5 +71,13 @@ public class LocalScanNotificationOrchestrationService {
     public void notifyError(String platformName, int failedPathsCount, List<String> failedPaths) {
         log.error("{}: Scan failed", platformName);
         eventPublisher.publishEvent(new LocalScanCompletedEvent(platformName, 0, false, failedPathsCount, failedPaths));
+    }
+
+    public void notifyError(String platformName, List<String> failedPaths) {
+        notifyError(platformName, 0, failedPaths);
+    }
+
+    public void notifyError(String platformName, String errorMessage) {
+        eventPublisher.publishEvent(new LocalScanErrorEvent(platformName, errorMessage));
     }
 }

@@ -1,14 +1,6 @@
 package com.pantheon.backend.service;
 
-import com.pantheon.backend.client.LocalGameLibraryClient;
-import com.pantheon.backend.dto.ScannedLocalGameDTO;
-import com.pantheon.backend.exception.ScanFailureException;
-import com.pantheon.backend.mapper.GameMapper;
-import com.pantheon.backend.model.Game;
-import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
-import com.pantheon.backend.repository.GameRepository;
-import com.pantheon.backend.repository.LibraryEntryRepository;
 import com.pantheon.backend.repository.PlatformRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,36 +8,54 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
 public class LibraryService {
 
     private final PlatformRepository platformRepository;
-    private final GameRepository gameRepository;
-    private final LibraryEntryRepository libraryEntryRepository;
-    private final GameMapper gameMapper;
-    private final PlatformClientMapperService platformClientMapperService;
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
+    private final LibraryScanService libraryScanService;
 
     @Autowired
-
     public LibraryService(PlatformRepository platformRepository,
-                          GameRepository gameRepository,
-                          LibraryEntryRepository libraryEntryRepository,
-                          PlatformClientMapperService platformClientMapperService,
-                          GameMapper gameMapper,
+                          LibraryScanService libraryScanService,
                           LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
 
         this.platformRepository = platformRepository;
-        this.gameRepository = gameRepository;
-        this.libraryEntryRepository = libraryEntryRepository;
-        this.gameMapper = gameMapper;
-        this.platformClientMapperService = platformClientMapperService;
+        this.libraryScanService = libraryScanService;
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
+
+    }
+
+    @Async
+    @Transactional
+    public void scanPlatforms(String[] platforms) throws IllegalStateException, IllegalArgumentException {
+
+        List<Platform> platformList;
+
+        if (platforms == null || platforms.length == 0) {
+            platformList = platformRepository.findAll();
+        } else {
+            platformList = Arrays.stream(platforms).map(platformName -> {
+                try {
+                    return getPlatformByName(platformName);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            }).filter(Objects::nonNull).toList();
+        }
+
+        for (Platform platform : platformList) {
+            try {
+                this.libraryScanService.scanPlatformPaths(platform);
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                log.error("{}: Error while scanning platform {}", platform.getName(), e.getMessage());
+            }
+        }
 
     }
 
@@ -59,110 +69,19 @@ public class LibraryService {
     public void scanPlatform(String platformName) throws IllegalStateException, IllegalArgumentException {
         log.info("Requesting scan for platform {}", platformName);
 
-        Platform platform = platformRepository.findByName(platformName)
+        Platform platform = getPlatformByName(platformName);
+
+        this.libraryScanService.scanPlatformPaths(platform);
+
+    }
+
+    private Platform getPlatformByName(String platformName) throws IllegalArgumentException {
+        return platformRepository.findByName(platformName)
                 .orElseThrow(() -> {
-                    log.error("Unknown Platform: {}", platformName);
+                    log.error("{}: Unknown Platform", platformName);
+                    localScanNotificationOrchestrationService.notifyError(platformName, "Platform not found");
                     return new IllegalArgumentException("Unknown platform: " + platformName);
                 });
-
-        LocalGameLibraryClient client = platformClientMapperService.getScanner(platform);
-
-        String phase = "Initializing";
-
-        List<String> libraryPaths = platform.getLibraryPaths();
-
-        if (libraryPaths == null || libraryPaths.isEmpty()) {
-            log.error("{}: No Library Paths Configured", platformName);
-            throw new IllegalStateException("No libraries paths configured");
-        }
-
-        localScanNotificationOrchestrationService.notifyStart(platformName);
-
-        List<String> failedPaths = new ArrayList<>();
-
-        int totalGamesFound = 0;
-
-        for (String pathStr : libraryPaths) {
-
-            log.info("{}: Initializing scan for path: {}", platformName, pathStr);
-
-            try {
-
-                phase = "Scanning";
-
-                List<ScannedLocalGameDTO> foundGames = client.scan(Path.of(pathStr));
-
-                phase = "Processing";
-
-                processScannedGames(foundGames, platform);
-
-                phase = "Sending";
-
-                localScanNotificationOrchestrationService.notifyBatch(platformName, foundGames);
-
-                totalGamesFound += foundGames.size();
-
-                log.info("{}: Scan Succeeded for path {}", platformName, pathStr);
-
-            } catch (ScanFailureException e) {
-                log.error("{}: Scan failed for path {} in phase {} with exception: {}", platformName, pathStr, phase, e.getMessage(), e);
-                failedPaths.add(pathStr);
-            }
-        }
-
-        if (failedPaths.size() == platform.getLibraryPaths().size()) {
-            log.error("{}: Scan failed for all paths", platformName);
-            localScanNotificationOrchestrationService.notifyError(platformName, failedPaths.size(), failedPaths);
-        } else if (failedPaths.isEmpty()) {
-            log.info("{}: Scan completed, totalPaths: {}, all succeeded", platformName, libraryPaths.size());
-            localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound);
-        } else {
-            log.info("{}: Scan completed, totalPaths: {}, failed: {}", platformName, libraryPaths.size(), failedPaths);
-            localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound, failedPaths.size(), failedPaths);
-        }
-
-    }
-
-
-    private void processScannedGames(List<ScannedLocalGameDTO> scannedGames, Platform platform) {
-        for (ScannedLocalGameDTO dto : scannedGames) {
-            Game game = findOrCreateGame(dto);
-            createOrUpdateLibraryEntry(game, platform, dto);
-        }
-        log.info("{}: Processed {} games ", platform.getName(), scannedGames.size());
-    }
-
-    private Game findOrCreateGame(ScannedLocalGameDTO dto) {
-
-        return gameRepository.findByTitle(dto.title()).orElseGet(
-                () -> {
-                    Game newGame = gameMapper.toEntity(dto);
-                    return gameRepository.save(newGame);
-                });
-    }
-
-    private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedLocalGameDTO dto) {
-
-        LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId())
-                .orElseGet(() -> {
-                    LibraryEntry newEntry = new LibraryEntry();
-                    newEntry.setGame(game);
-                    newEntry.setPlatform(platform);
-                    return newEntry;
-                });
-
-        entry.setInstalled(dto.isInstalled());
-        entry.setInstallPath(dto.installPath());
-        entry.setPlatformGameId(dto.platformGameId());
-
-        if (dto.playtimeMinutes() != null) {
-            entry.setPlaytimeMinutes(dto.playtimeMinutes());
-        }
-        if (dto.lastPlayed() != null) {
-            entry.setLastPlayed(dto.lastPlayed());
-        }
-
-        libraryEntryRepository.save(entry);
     }
 
 }

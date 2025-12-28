@@ -35,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.hibernate.orm:hibernate-community-dialects")
     implementation("org.mapstruct:mapstruct:1.6.3")
+    implementation("io.vavr:vavr:0.11.0")
 
     implementation("org.flywaydb:flyway-core")
 

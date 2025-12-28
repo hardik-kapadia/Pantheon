@@ -1,5 +1,6 @@
 package com.pantheon.backend.listener;
 
+import com.pantheon.backend.event.localscan.LocalScanErrorEvent;
 import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
 import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
 import com.pantheon.backend.event.localscan.LocalScanStartedEvent;
@@ -16,16 +17,21 @@ public class LibraryScanEventListener {
 
     @EventListener
     public void onScanStarted(LocalScanStartedEvent event) {
-        ssePubSub.broadcast("SCAN_STARTED", event);
+        ssePubSub.broadcast("LOCAL_SCAN_STARTED", event);
     }
 
     @EventListener
     public void onScanBatch(LocalScanBatchEvent event) {
-        ssePubSub.broadcast("SCAN_BATCH", event);
+        ssePubSub.broadcast("LOCAL_SSCAN_BATCH", event);
     }
 
     @EventListener
     public void onScanCompleted(LocalScanCompletedEvent event) {
-        ssePubSub.broadcast("SCAN_COMPLETED", event);
+        ssePubSub.broadcast("LOCAL_SSCAN_COMPLETED", event);
+    }
+
+    @EventListener
+    public void onScanFailed(LocalScanErrorEvent event) {
+        ssePubSub.broadcast("LOCAL_SSCAN_FAILED", event);
     }
 }
