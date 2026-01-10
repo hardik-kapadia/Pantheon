@@ -9,7 +9,7 @@ import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
-import com.pantheon.backend.repository.PlatformRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

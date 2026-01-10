@@ -2,11 +2,13 @@ package com.pantheon.backend.service;
 
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.PlatformRepository;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;

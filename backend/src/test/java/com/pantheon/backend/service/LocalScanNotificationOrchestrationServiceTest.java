@@ -3,6 +3,9 @@ package com.pantheon.backend.service;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
 import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
+
+import org.springframework.context.ApplicationEventPublisher;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,12 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

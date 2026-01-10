@@ -1,13 +1,15 @@
 package com.pantheon.backend.listener;
 
-import com.pantheon.backend.event.localscan.LocalScanErrorEvent;
 import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
 import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
+import com.pantheon.backend.event.localscan.LocalScanErrorEvent;
 import com.pantheon.backend.event.localscan.LocalScanStartedEvent;
 import com.pantheon.backend.web.SsePubSub;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
