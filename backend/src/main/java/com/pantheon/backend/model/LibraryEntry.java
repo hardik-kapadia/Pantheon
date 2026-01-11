@@ -51,6 +51,7 @@ public class LibraryEntry {
 
     private String platformGameId;
 
+    @Builder.Default
     private Integer playtimeMinutes = 0;
 
     private LocalDateTime lastPlayed;

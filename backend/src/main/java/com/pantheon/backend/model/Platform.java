@@ -48,6 +48,7 @@ public class Platform {
     @Column(nullable = false)
     private PlatformType type;
 
+    @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "platform_paths", joinColumns = @JoinColumn(name = "platform_id"))
     @Column(name = "path")
