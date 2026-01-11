@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface LocalGameLibraryScanner {
 
-    PlatformType getSupportedType();
-
     String getPlatformName();
 
     List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException;
