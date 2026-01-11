@@ -49,19 +49,14 @@ public class PlatformLocalScanServiceTest {
 
     @Mock
     private GameRepository gameRepository;
-
     @Mock
     private LibraryEntryRepository libraryEntryRepository;
-
     @Mock
     private GameMapper gameMapper;
-
     @Mock
     private LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
-
     @Mock
     private LocalGameLibraryScanner mockSteamScanner;
-
     @Mock
     private LocalGameLibraryScanner mockEpicScanner;
 
@@ -70,12 +65,9 @@ public class PlatformLocalScanServiceTest {
     @BeforeEach
     void setUp() {
 
-
-        // Set up the scanner behavior for the Map construction
         when(mockSteamScanner.getPlatformName()).thenReturn("Steam");
         when(mockEpicScanner.getPlatformName()).thenReturn("Epic");
 
-        // Manually build the list of scanners
         List<LocalGameLibraryScanner> scanners = List.of(mockSteamScanner, mockEpicScanner);
 
         platformLocalScanService = new PlatformLocalScanService(gameRepository,
