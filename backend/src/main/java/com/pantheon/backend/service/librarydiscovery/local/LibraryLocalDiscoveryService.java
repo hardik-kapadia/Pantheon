@@ -2,13 +2,12 @@ package com.pantheon.backend.service.librarydiscovery.local;
 
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.PlatformRepository;
-import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,9 +15,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Service responsible for orchestrating local library discovery tasks.
+ * <p>
+ * This service acts as the entry point for scanning operations, resolving platform names to {@link Platform} entities
+ * and dispatching scan requests to the processing layer.
+ * All public scan methods are execution-heavy and run asynchronously.
+ * </p>
+ */
 @Slf4j
 @Service
-@Transactional
 public class LibraryLocalDiscoveryService {
 
     private final PlatformRepository platformRepository;
@@ -36,11 +42,24 @@ public class LibraryLocalDiscoveryService {
 
     }
 
+    /**
+     * Scans all platforms
+     *
+     * @throws IllegalArgumentException for incorrect platform name
+     * @throws IllegalStateException    for correct platform name but no Scanner defined for it.
+     */
     @Async
     public void scanPlatforms() throws IllegalStateException, IllegalArgumentException {
         scanPlatforms(null);
     }
 
+    /**
+     * Scans provided platforms
+     *
+     * @param platforms platforms to scan
+     * @throws IllegalArgumentException for incorrect platform name
+     * @throws IllegalStateException    for correct platform name but no Scanner defined for it.
+     */
     @Async
     public void scanPlatforms(String[] platforms) throws IllegalStateException, IllegalArgumentException {
 
@@ -69,6 +88,8 @@ public class LibraryLocalDiscoveryService {
     }
 
     /**
+     * Scans the specified platform
+     *
      * @param platformName The name of the platform to scan
      * @throws IllegalArgumentException for incorrect platform name
      * @throws IllegalStateException    for correct platform name but no Scanner defined for it.
@@ -83,6 +104,11 @@ public class LibraryLocalDiscoveryService {
 
     }
 
+    /**
+     * @param platformName Platform Name
+     * @return the Platform Object
+     * @throws IllegalArgumentException when Platform is not found
+     */
     private Platform getPlatformByName(String platformName) throws IllegalArgumentException {
         return platformRepository.findByName(platformName)
                 .orElseThrow(() -> {
@@ -91,7 +117,5 @@ public class LibraryLocalDiscoveryService {
                     return new IllegalArgumentException("Unknown platform: " + platformName);
                 });
     }
-
-
 
 }

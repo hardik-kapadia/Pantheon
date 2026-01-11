@@ -76,7 +76,7 @@ public class LocalScanNotificationOrchestrationService {
     }
 
     public void notifyError(String platformName, List<String> failedPaths) {
-        notifyError(platformName, 0, failedPaths);
+        notifyError(platformName, failedPaths.size(), failedPaths);
     }
 
     public void notifyError(String platformName, String errorMessage) {

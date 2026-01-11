@@ -50,7 +50,7 @@ public class Platform {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "platform_paths", joinColumns = @JoinColumn(name = "platform_id"))
-    @Column(name = "path") // The column name in the child table
+    @Column(name = "path")
     private List<String> libraryPaths = new ArrayList<>();
 
     @Override

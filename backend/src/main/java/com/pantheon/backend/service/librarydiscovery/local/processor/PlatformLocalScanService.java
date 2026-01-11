@@ -3,18 +3,12 @@ package com.pantheon.backend.service.librarydiscovery.local.processor;
 import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
-import com.pantheon.backend.mapper.GameMapper;
-import com.pantheon.backend.model.Game;
-import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
-import com.pantheon.backend.repository.GameRepository;
-import com.pantheon.backend.repository.LibraryEntryRepository;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -26,31 +20,52 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ *
+ * Service Responsible for initiating the path-specific scans, notifications and further processing
+ *
+ * <p>
+ * This service is responsible for orchestrating the scans, the notifications related to a scan as well as the
+ * post-processing for scanned games
+ * </p>
+ *
+ */
 @Slf4j
 @Service
 public class PlatformLocalScanService {
 
-    private final GameRepository gameRepository;
-    private final LibraryEntryRepository libraryEntryRepository;
-    private final GameMapper gameMapper;
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
     private final Map<String, LocalGameLibraryScanner> localGameLibraryClientMap;
-    @Autowired
-    public PlatformLocalScanService(GameRepository gameRepository,
-                                    LibraryEntryRepository libraryEntryRepository,
-                                    GameMapper gameMapper,
-                                    LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService,
-                                    List<LocalGameLibraryScanner> localGameLibraryScanners) {
+    private final PlatformLocalGamesProcessor platformLocalGamesProcessor;
 
-        this.gameRepository = gameRepository;
-        this.libraryEntryRepository = libraryEntryRepository;
-        this.gameMapper = gameMapper;
+    /**
+     * Initializes the scan service and builds a strategy map of available scanners.
+     *
+     * @param localScanNotificationOrchestrationService Orchestrator for scan-progress events.
+     * @param platformLocalGamesProcessor               Responsible for the actual path-specific scanning
+     * @param localGameLibraryScanners                  List of all {@link LocalGameLibraryScanner} beans found in the context.
+     */
+    @Autowired
+    public PlatformLocalScanService(LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService,
+                                    List<LocalGameLibraryScanner> localGameLibraryScanners,
+                                    PlatformLocalGamesProcessor platformLocalGamesProcessor) {
+
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
         this.localGameLibraryClientMap = localGameLibraryScanners.stream()
                 .collect(Collectors.toMap(LocalGameLibraryScanner::getPlatformName, Function.identity()));
 
+        this.platformLocalGamesProcessor = platformLocalGamesProcessor;
     }
 
+    /**
+     *
+     * Responsible for initiating the path-specific scans via {@link LocalGameLibraryScanner}, initiating notifications
+     * via {@link LocalScanNotificationOrchestrationService} as well as initiating the processing for the scanned games
+     * via {@link PlatformLocalGamesProcessor}
+     *
+     * @param platform The Platform for which we need to scan games
+     * @throws IllegalStateException when there's no scanner configured for the platform
+     */
     @Async
     public void scanPlatformPaths(Platform platform) throws IllegalStateException {
 
@@ -65,13 +80,7 @@ public class PlatformLocalScanService {
 
         String phase = "Initializing";
 
-        List<String> libraryPaths = platform.getLibraryPaths();
-
-        if (libraryPaths == null || libraryPaths.isEmpty()) {
-            log.error("{}: No Library Paths Configured", platformName);
-            localScanNotificationOrchestrationService.notifyError(platformName, "No Library Paths Configured");
-            throw new IllegalStateException("No libraries paths configured");
-        }
+        List<String> libraryPaths = getLibraryPathsForPlatform(platform);
 
         localScanNotificationOrchestrationService.notifyStart(platformName);
 
@@ -91,7 +100,7 @@ public class PlatformLocalScanService {
 
                 phase = "Processing";
 
-                processScannedGames(foundGames, platform);
+                this.platformLocalGamesProcessor.processScannedGames(foundGames, platform);
 
                 phase = "Sending";
 
@@ -119,47 +128,19 @@ public class PlatformLocalScanService {
         }
     }
 
-    @Transactional
-    protected void processScannedGames(List<ScannedLocalGameDTO> scannedGames, Platform platform) {
-        for (ScannedLocalGameDTO dto : scannedGames) {
-            Game game = findOrCreateGame(dto);
-            createOrUpdateLibraryEntry(game, platform, dto);
-        }
-        log.info("{}: Processed {} games ", platform.getName(), scannedGames.size());
-    }
+    private List<String> getLibraryPathsForPlatform(Platform platform) throws IllegalStateException {
 
-    private Game findOrCreateGame(ScannedLocalGameDTO dto) {
+        List<String> libraryPaths = platform.getLibraryPaths();
 
-        return gameRepository.findByTitle(dto.title()).orElseGet(
-                () -> {
-                    Game newGame = gameMapper.toEntity(dto);
-                    return gameRepository.save(newGame);
-                });
-    }
-
-    private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedLocalGameDTO dto) {
-
-        LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId())
-                .orElseGet(() -> {
-                    LibraryEntry newEntry = new LibraryEntry();
-                    newEntry.setGame(game);
-                    newEntry.setPlatform(platform);
-                    return newEntry;
-                });
-
-        entry.setInstalled(dto.isInstalled());
-        entry.setInstallPath(dto.installPath());
-        entry.setPlatformGameId(dto.platformGameId());
-
-        if (dto.playtimeMinutes() != null) {
-            entry.setPlaytimeMinutes(dto.playtimeMinutes());
-        }
-        if (dto.lastPlayed() != null) {
-            entry.setLastPlayed(dto.lastPlayed());
+        if (libraryPaths == null || libraryPaths.isEmpty()) {
+            log.error("{}: No Library Paths Configured", platform.getName());
+            localScanNotificationOrchestrationService.notifyError(platform.getName(), "No Library Paths Configured");
+            throw new IllegalStateException("No libraries paths configured");
         }
 
-        libraryEntryRepository.save(entry);
+        return libraryPaths;
     }
+
     private LocalGameLibraryScanner getScannerForPlatform(@NonNull Platform platform) throws IllegalStateException {
 
         LocalGameLibraryScanner scanner = localGameLibraryClientMap.get(platform.getName());
