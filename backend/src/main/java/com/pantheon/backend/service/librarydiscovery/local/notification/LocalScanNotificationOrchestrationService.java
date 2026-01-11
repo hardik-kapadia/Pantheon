@@ -1,4 +1,4 @@
-package com.pantheon.backend.service.librarydiscovery.notification;
+package com.pantheon.backend.service.librarydiscovery.local.notification;
 
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.event.localscan.LocalScanBatchEvent;

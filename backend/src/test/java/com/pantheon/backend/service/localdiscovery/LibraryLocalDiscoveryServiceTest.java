@@ -1,9 +1,9 @@
 package com.pantheon.backend.service.localdiscovery;
 
 import com.pantheon.backend.repository.PlatformRepository;
-import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
-import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
-import com.pantheon.backend.service.librarydiscovery.LibraryLocalDiscoveryService;
+import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
+import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.local.LibraryLocalDiscoveryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

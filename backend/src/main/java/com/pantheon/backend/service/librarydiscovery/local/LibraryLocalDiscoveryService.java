@@ -1,17 +1,15 @@
-package com.pantheon.backend.service.librarydiscovery;
+package com.pantheon.backend.service.librarydiscovery.local;
 
-import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.PlatformRepository;
-import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
-import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
+import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;

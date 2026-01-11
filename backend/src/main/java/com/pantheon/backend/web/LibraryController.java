@@ -1,6 +1,6 @@
 package com.pantheon.backend.web;
 
-import com.pantheon.backend.service.librarydiscovery.LibraryLocalDiscoveryService;
+import com.pantheon.backend.service.librarydiscovery.local.LibraryLocalDiscoveryService;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

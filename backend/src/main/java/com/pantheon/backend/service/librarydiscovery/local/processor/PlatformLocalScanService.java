@@ -1,4 +1,4 @@
-package com.pantheon.backend.service.librarydiscovery.helper;
+package com.pantheon.backend.service.librarydiscovery.local.processor;
 
 import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
@@ -9,7 +9,7 @@ import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
-import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;

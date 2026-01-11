@@ -9,8 +9,8 @@ import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
-import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
-import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
+import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
