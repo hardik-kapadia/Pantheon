@@ -1,6 +1,6 @@
 package com.pantheon.backend.web;
 
-import com.pantheon.backend.service.LibraryService;
+import com.pantheon.backend.service.librarydiscovery.LibraryLocalDiscoveryService;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +20,24 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class LibraryController {
 
-    private final LibraryService libraryService;
+    private final LibraryLocalDiscoveryService libraryLocalDiscoveryService;
     private final SsePubSub ssePubSub;
 
     @PostMapping("/scan/{platform}")
     public ResponseEntity<String> scanPlatform(@PathVariable String platform) {
-        libraryService.scanPlatform(platform);
+        libraryLocalDiscoveryService.scanPlatform(platform);
         return ResponseEntity.accepted().body("Scan initiated for " + platform);
     }
 
     @PostMapping("/scan/{platforms}")
     public ResponseEntity<String> scanPlatforms(@PathVariable String[] platforms) {
-        libraryService.scanPlatforms(platforms);
+        libraryLocalDiscoveryService.scanPlatforms(platforms);
         return ResponseEntity.accepted().body("Scan initiated for " + Arrays.toString(platforms));
     }
 
     @PostMapping("/scan")
     public ResponseEntity<String> scanPlatforms() {
-        libraryService.scanPlatforms();
+        libraryLocalDiscoveryService.scanPlatforms();
         return ResponseEntity.accepted().body("Scan initiated for all Platforms");
     }
 

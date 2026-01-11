@@ -1,7 +1,9 @@
-package com.pantheon.backend.service;
+package com.pantheon.backend.service.librarydiscovery;
 
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.PlatformRepository;
+import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
+import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -17,19 +19,19 @@ import java.util.Objects;
 @Slf4j
 @Service
 @Transactional
-public class LibraryService {
+public class LibraryLocalDiscoveryService {
 
     private final PlatformRepository platformRepository;
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
-    private final LibraryScanService libraryScanService;
+    private final PlatformLocalScanService platformLocalScanService;
 
     @Autowired
-    public LibraryService(PlatformRepository platformRepository,
-                          LibraryScanService libraryScanService,
-                          LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
+    public LibraryLocalDiscoveryService(PlatformRepository platformRepository,
+                                        PlatformLocalScanService platformLocalScanService,
+                                        LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
 
         this.platformRepository = platformRepository;
-        this.libraryScanService = libraryScanService;
+        this.platformLocalScanService = platformLocalScanService;
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
 
     }
@@ -58,7 +60,7 @@ public class LibraryService {
 
         for (Platform platform : platformList) {
             try {
-                this.libraryScanService.scanPlatformPaths(platform);
+                this.platformLocalScanService.scanPlatformPaths(platform);
             } catch (IllegalStateException | IllegalArgumentException e) {
                 log.error("{}: Error while scanning platform {}", platform.getName(), e.getMessage());
             }
@@ -77,7 +79,7 @@ public class LibraryService {
 
         Platform platform = getPlatformByName(platformName);
 
-        this.libraryScanService.scanPlatformPaths(platform);
+        this.platformLocalScanService.scanPlatformPaths(platform);
 
     }
 

@@ -1,6 +1,6 @@
 package com.pantheon.backend.service;
 
-import com.pantheon.backend.client.LocalGameLibraryClient;
+import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.mapper.GameMapper;
@@ -9,6 +9,9 @@ import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
+import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
+import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.helper.PlatformClientMapperService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,9 +44,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class LibraryScanServiceTest {
+public class PlatformLocalScanServiceTest {
 
-    private static final Logger log = LoggerFactory.getLogger(LibraryScanServiceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(PlatformLocalScanServiceTest.class);
 
 
     @Mock
@@ -61,11 +64,11 @@ public class LibraryScanServiceTest {
     @Mock
     private LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
 
-    private LibraryScanService libraryScanService;
+    private PlatformLocalScanService platformLocalScanService;
 
     @BeforeEach
     void setUp() {
-        libraryScanService = new LibraryScanService(gameRepository, libraryEntryRepository, platformClientMapperService, gameMapper, localScanNotificationOrchestrationService);
+        platformLocalScanService = new PlatformLocalScanService(gameRepository, libraryEntryRepository, platformClientMapperService, gameMapper, localScanNotificationOrchestrationService);
     }
 
     @Test
@@ -75,7 +78,7 @@ public class LibraryScanServiceTest {
         Platform platformMock = mock(Platform.class);
         when(platformClientMapperService.getScanner(platformMock)).thenThrow(IllegalStateException.class);
 
-        assertThrows(IllegalStateException.class, () -> libraryScanService.scanPlatformPaths(platformMock));
+        assertThrows(IllegalStateException.class, () -> platformLocalScanService.scanPlatformPaths(platformMock));
 
     }
 
@@ -99,7 +102,7 @@ public class LibraryScanServiceTest {
         Game game2Mock = mock(Game.class);
         when(game2Mock.getId()).thenReturn(2);
 
-        LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
+        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
 
         when(clientMock.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(foundGames);
 
@@ -119,7 +122,7 @@ public class LibraryScanServiceTest {
 
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
-            libraryScanService.scanPlatformPaths(platform);
+            platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
             verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
@@ -160,7 +163,7 @@ public class LibraryScanServiceTest {
         Game game1Mock = mock(Game.class);
         when(game1Mock.getId()).thenReturn(1);
 
-        LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
+        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
 
         when(clientMock.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(gamesInLibrary1);
         when(clientMock.scan(Path.of(platform.getLibraryPaths().getLast()))).thenThrow(ScanFailureException.class);
@@ -175,7 +178,7 @@ public class LibraryScanServiceTest {
 
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
-            libraryScanService.scanPlatformPaths(platform);
+            platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
             verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
@@ -209,7 +212,7 @@ public class LibraryScanServiceTest {
                 .id(1)
                 .build();
 
-        LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
+        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
 
         when(clientMock.scan(any(Path.class))).thenThrow(ScanFailureException.class);
 
@@ -217,7 +220,7 @@ public class LibraryScanServiceTest {
 
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
-            libraryScanService.scanPlatformPaths(platform);
+            platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
             verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
@@ -248,7 +251,7 @@ public class LibraryScanServiceTest {
                 .id(1)
                 .build();
 
-        LocalGameLibraryClient clientMock = mock(LocalGameLibraryClient.class);
+        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
 
         when(clientMock.scan(any(Path.class))).thenThrow(ScanFailureException.class);
 
@@ -256,7 +259,7 @@ public class LibraryScanServiceTest {
 
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
-            libraryScanService.scanPlatformPaths(platform);
+            platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
             verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));

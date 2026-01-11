@@ -3,6 +3,7 @@ package com.pantheon.backend.service;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
 import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
+import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.context.ApplicationEventPublisher;
 

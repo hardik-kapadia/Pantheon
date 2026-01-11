@@ -1,6 +1,6 @@
-package com.pantheon.backend.service;
+package com.pantheon.backend.service.librarydiscovery.helper;
 
-import com.pantheon.backend.client.LocalGameLibraryClient;
+import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.mapper.GameMapper;
@@ -9,6 +9,7 @@ import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
+import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class LibraryScanService {
+public class PlatformLocalScanService {
 
     private final GameRepository gameRepository;
     private final LibraryEntryRepository libraryEntryRepository;
@@ -32,11 +33,11 @@ public class LibraryScanService {
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
 
     @Autowired
-    public LibraryScanService(GameRepository gameRepository,
-                              LibraryEntryRepository libraryEntryRepository,
-                              PlatformClientMapperService platformClientMapperService,
-                              GameMapper gameMapper,
-                              LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
+    public PlatformLocalScanService(GameRepository gameRepository,
+                                    LibraryEntryRepository libraryEntryRepository,
+                                    PlatformClientMapperService platformClientMapperService,
+                                    GameMapper gameMapper,
+                                    LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
 
         this.gameRepository = gameRepository;
         this.libraryEntryRepository = libraryEntryRepository;
@@ -47,11 +48,10 @@ public class LibraryScanService {
     }
 
     @Async
-    @Transactional
     public void scanPlatformPaths(Platform platform) throws IllegalStateException {
 
         String platformName = platform.getName();
-        LocalGameLibraryClient client;
+        LocalGameLibraryScanner client;
         try {
             client = platformClientMapperService.getScanner(platform);
         } catch (IllegalStateException e) {
@@ -115,7 +115,8 @@ public class LibraryScanService {
         }
     }
 
-    private void processScannedGames(List<ScannedLocalGameDTO> scannedGames, Platform platform) {
+    @Transactional
+    protected void processScannedGames(List<ScannedLocalGameDTO> scannedGames, Platform platform) {
         for (ScannedLocalGameDTO dto : scannedGames) {
             Game game = findOrCreateGame(dto);
             createOrUpdateLibraryEntry(game, platform, dto);

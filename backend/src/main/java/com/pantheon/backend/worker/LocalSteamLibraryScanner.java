@@ -1,6 +1,6 @@
-package com.pantheon.backend.integration;
+package com.pantheon.backend.worker;
 
-import com.pantheon.backend.client.LocalGameLibraryClient;
+import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.PlatformType;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
-class LocalSteamLibraryScanner implements LocalGameLibraryClient {
+class LocalSteamLibraryScanner implements LocalGameLibraryScanner {
 
     @Override
     public PlatformType getSupportedType() {

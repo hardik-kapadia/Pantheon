@@ -1,6 +1,9 @@
 package com.pantheon.backend.service;
 
 import com.pantheon.backend.repository.PlatformRepository;
+import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
+import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.LibraryLocalDiscoveryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class LibraryServiceTest {
+public class LibraryLocalDiscoveryServiceTest {
 
-    private static final Logger log = LoggerFactory.getLogger(LibraryServiceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(LibraryLocalDiscoveryServiceTest.class);
 
     @Mock
     private PlatformRepository platformRepository;
@@ -28,13 +31,13 @@ public class LibraryServiceTest {
     private LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
 
     @Mock
-    private LibraryScanService libraryScanService;
+    private PlatformLocalScanService platformLocalScanService;
 
-    private LibraryService libraryService;
+    private LibraryLocalDiscoveryService libraryLocalDiscoveryService;
 
     @BeforeEach
     void setUp() {
-        libraryService = new LibraryService(platformRepository, libraryScanService, localScanNotificationOrchestrationService);
+        libraryLocalDiscoveryService = new LibraryLocalDiscoveryService(platformRepository, platformLocalScanService, localScanNotificationOrchestrationService);
     }
 
     @Test
@@ -45,7 +48,7 @@ public class LibraryServiceTest {
 
         when(platformRepository.findByName("XYZ")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> libraryService.scanPlatform(invalidName));
+        assertThrows(IllegalArgumentException.class, () -> libraryLocalDiscoveryService.scanPlatform(invalidName));
 
     }
 
