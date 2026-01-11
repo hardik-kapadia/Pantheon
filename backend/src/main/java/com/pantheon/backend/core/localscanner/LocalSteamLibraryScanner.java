@@ -1,6 +1,5 @@
-package com.pantheon.backend.worker;
+package com.pantheon.backend.core.localscanner;
 
-import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.PlatformType;

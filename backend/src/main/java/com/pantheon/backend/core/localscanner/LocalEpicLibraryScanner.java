@@ -1,6 +1,5 @@
-package com.pantheon.backend.worker;
+package com.pantheon.backend.core.localscanner;
 
-import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.PlatformType;
@@ -11,7 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @Component
-class LocalGogLibraryScanner implements LocalGameLibraryScanner {
+class LocalEpicLibraryScanner implements LocalGameLibraryScanner {
     @Override
     public PlatformType getSupportedType() {
         return PlatformType.API;
@@ -19,7 +18,7 @@ class LocalGogLibraryScanner implements LocalGameLibraryScanner {
 
     @Override
     public String getPlatformName() {
-        return "GOG";
+        return "Epic";
     }
 
     @Override

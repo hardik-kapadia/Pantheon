@@ -1,5 +1,6 @@
 package com.pantheon.backend.service.librarydiscovery;
 
+import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.PlatformRepository;
 import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -91,5 +93,7 @@ public class LibraryLocalDiscoveryService {
                     return new IllegalArgumentException("Unknown platform: " + platformName);
                 });
     }
+
+
 
 }

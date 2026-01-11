@@ -1,4 +1,4 @@
-package com.pantheon.backend.service;
+package com.pantheon.backend.service.localdiscovery;
 
 import com.pantheon.backend.repository.PlatformRepository;
 import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;

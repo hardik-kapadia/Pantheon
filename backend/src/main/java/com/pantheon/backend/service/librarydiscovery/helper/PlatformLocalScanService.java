@@ -16,11 +16,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,21 +33,21 @@ public class PlatformLocalScanService {
     private final GameRepository gameRepository;
     private final LibraryEntryRepository libraryEntryRepository;
     private final GameMapper gameMapper;
-    private final PlatformClientMapperService platformClientMapperService;
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
-
+    private final Map<String, LocalGameLibraryScanner> localGameLibraryClientMap;
     @Autowired
     public PlatformLocalScanService(GameRepository gameRepository,
                                     LibraryEntryRepository libraryEntryRepository,
-                                    PlatformClientMapperService platformClientMapperService,
                                     GameMapper gameMapper,
-                                    LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
+                                    LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService,
+                                    List<LocalGameLibraryScanner> localGameLibraryScanners) {
 
         this.gameRepository = gameRepository;
         this.libraryEntryRepository = libraryEntryRepository;
         this.gameMapper = gameMapper;
-        this.platformClientMapperService = platformClientMapperService;
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
+        this.localGameLibraryClientMap = localGameLibraryScanners.stream()
+                .collect(Collectors.toMap(LocalGameLibraryScanner::getPlatformName, Function.identity()));
 
     }
 
@@ -53,7 +57,7 @@ public class PlatformLocalScanService {
         String platformName = platform.getName();
         LocalGameLibraryScanner client;
         try {
-            client = platformClientMapperService.getScanner(platform);
+            client = getScannerForPlatform(platform);
         } catch (IllegalStateException e) {
             localScanNotificationOrchestrationService.notifyError(platformName, e.getMessage());
             throw e;
@@ -156,4 +160,16 @@ public class PlatformLocalScanService {
 
         libraryEntryRepository.save(entry);
     }
+    private LocalGameLibraryScanner getScannerForPlatform(@NonNull Platform platform) throws IllegalStateException {
+
+        LocalGameLibraryScanner scanner = localGameLibraryClientMap.get(platform.getName());
+
+        if (scanner == null) {
+            log.error("{}: No LibraryClient found ", platform.getName());
+            throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
+        }
+
+        return scanner;
+    }
+
 }

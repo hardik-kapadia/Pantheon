@@ -1,4 +1,4 @@
-package com.pantheon.backend.service;
+package com.pantheon.backend.service.localdiscovery.helper;
 
 import com.pantheon.backend.core.localscanner.LocalGameLibraryScanner;
 import com.pantheon.backend.dto.ScannedLocalGameDTO;
@@ -11,7 +11,6 @@ import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
 import com.pantheon.backend.service.librarydiscovery.helper.PlatformLocalScanService;
 import com.pantheon.backend.service.librarydiscovery.notification.LocalScanNotificationOrchestrationService;
-import com.pantheon.backend.service.librarydiscovery.helper.PlatformClientMapperService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +47,6 @@ public class PlatformLocalScanServiceTest {
 
     private static final Logger log = LoggerFactory.getLogger(PlatformLocalScanServiceTest.class);
 
-
     @Mock
     private GameRepository gameRepository;
 
@@ -59,16 +57,33 @@ public class PlatformLocalScanServiceTest {
     private GameMapper gameMapper;
 
     @Mock
-    private PlatformClientMapperService platformClientMapperService;
+    private LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
 
     @Mock
-    private LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
+    private LocalGameLibraryScanner mockSteamScanner;
+
+    @Mock
+    private LocalGameLibraryScanner mockEpicScanner;
 
     private PlatformLocalScanService platformLocalScanService;
 
     @BeforeEach
     void setUp() {
-        platformLocalScanService = new PlatformLocalScanService(gameRepository, libraryEntryRepository, platformClientMapperService, gameMapper, localScanNotificationOrchestrationService);
+
+
+        // Set up the scanner behavior for the Map construction
+        when(mockSteamScanner.getPlatformName()).thenReturn("Steam");
+        when(mockEpicScanner.getPlatformName()).thenReturn("Epic");
+
+        // Manually build the list of scanners
+        List<LocalGameLibraryScanner> scanners = List.of(mockSteamScanner, mockEpicScanner);
+
+        platformLocalScanService = new PlatformLocalScanService(gameRepository,
+                libraryEntryRepository,
+                gameMapper,
+                localScanNotificationOrchestrationService,
+                scanners
+        );
     }
 
     @Test
@@ -76,7 +91,6 @@ public class PlatformLocalScanServiceTest {
     void testNoLocalLibraryClient() {
 
         Platform platformMock = mock(Platform.class);
-        when(platformClientMapperService.getScanner(platformMock)).thenThrow(IllegalStateException.class);
 
         assertThrows(IllegalStateException.class, () -> platformLocalScanService.scanPlatformPaths(platformMock));
 
@@ -102,11 +116,7 @@ public class PlatformLocalScanServiceTest {
         Game game2Mock = mock(Game.class);
         when(game2Mock.getId()).thenReturn(2);
 
-        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
-
-        when(clientMock.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(foundGames);
-
-        when(platformClientMapperService.getScanner(platform)).thenReturn(clientMock);
+        when(mockSteamScanner.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(foundGames);
 
         when(gameRepository.findByTitle(game2DTO.title())).thenReturn(Optional.empty());
         when(gameRepository.findByTitle(game1DTO.title())).thenReturn(Optional.of(game1Mock));
@@ -125,7 +135,7 @@ public class PlatformLocalScanServiceTest {
             platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
-            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
+            verify(mockSteamScanner, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
             verify(gameMapper, times(1)).toEntity(game2DTO);
             verify(gameRepository, times(2)).findByTitle(anyString());
             verify(gameRepository, times(1)).save(game2Mock);
@@ -163,12 +173,8 @@ public class PlatformLocalScanServiceTest {
         Game game1Mock = mock(Game.class);
         when(game1Mock.getId()).thenReturn(1);
 
-        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
-
-        when(clientMock.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(gamesInLibrary1);
-        when(clientMock.scan(Path.of(platform.getLibraryPaths().getLast()))).thenThrow(ScanFailureException.class);
-
-        when(platformClientMapperService.getScanner(platform)).thenReturn(clientMock);
+        when(mockSteamScanner.scan(Path.of(platform.getLibraryPaths().getFirst()))).thenReturn(gamesInLibrary1);
+        when(mockSteamScanner.scan(Path.of(platform.getLibraryPaths().getLast()))).thenThrow(ScanFailureException.class);
 
         when(gameRepository.findByTitle(game1DTO.title())).thenReturn(Optional.of(game1Mock));
 
@@ -181,8 +187,8 @@ public class PlatformLocalScanServiceTest {
             platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
-            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
-            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getLast()));
+            verify(mockSteamScanner, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
+            verify(mockSteamScanner, times(1)).scan(Path.of(platform.getLibraryPaths().getLast()));
             verify(gameMapper, never()).toEntity(game2DTO);
             verify(gameRepository, times(1)).findByTitle(anyString());
             verify(libraryEntryRepository, times(1)).findByGameIdAndPlatformId(1, 1);
@@ -212,18 +218,14 @@ public class PlatformLocalScanServiceTest {
                 .id(1)
                 .build();
 
-        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
-
-        when(clientMock.scan(any(Path.class))).thenThrow(ScanFailureException.class);
-
-        when(platformClientMapperService.getScanner(platform)).thenReturn(clientMock);
+        when(mockSteamScanner.scan(any(Path.class))).thenThrow(ScanFailureException.class);
 
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
             platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
-            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
+            verify(mockSteamScanner, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
             verify(gameMapper, never()).toEntity(any(ScannedLocalGameDTO.class));
             verify(gameRepository, never()).findByTitle(anyString());
             verify(gameRepository, never()).save(any(Game.class));
@@ -251,18 +253,14 @@ public class PlatformLocalScanServiceTest {
                 .id(1)
                 .build();
 
-        LocalGameLibraryScanner clientMock = mock(LocalGameLibraryScanner.class);
-
-        when(clientMock.scan(any(Path.class))).thenThrow(ScanFailureException.class);
-
-        when(platformClientMapperService.getScanner(platform)).thenReturn(clientMock);
+        when(mockSteamScanner.scan(any(Path.class))).thenThrow(ScanFailureException.class);
 
         try (var mockedConstruction = Mockito.mockConstruction(LibraryEntry.class)) {
 
             platformLocalScanService.scanPlatformPaths(platform);
 
             verify(localScanNotificationOrchestrationService, times(1)).notifyStart(platformName);
-            verify(clientMock, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
+            verify(mockSteamScanner, times(1)).scan(Path.of(platform.getLibraryPaths().getFirst()));
             verify(gameMapper, never()).toEntity(any(ScannedLocalGameDTO.class));
             verify(gameRepository, never()).findByTitle(anyString());
             verify(gameRepository, never()).save(any(Game.class));
