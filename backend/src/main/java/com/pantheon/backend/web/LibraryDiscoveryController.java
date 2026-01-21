@@ -17,7 +17,7 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/api/library/discovery")
 @RequiredArgsConstructor
-public class LibraryController {
+public class LibraryDiscoveryController {
 
     private final LibraryLocalDiscoveryService libraryLocalDiscoveryService;
     private final SsePubSub ssePubSub;
