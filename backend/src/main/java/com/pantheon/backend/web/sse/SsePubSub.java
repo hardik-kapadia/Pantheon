@@ -1,4 +1,4 @@
-package com.pantheon.backend.web;
+package com.pantheon.backend.web.sse;
 
 import com.pantheon.backend.event.localscan.LocalScanEvent;
 

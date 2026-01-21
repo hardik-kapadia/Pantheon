@@ -1,6 +1,7 @@
-package com.pantheon.backend.web;
+package com.pantheon.backend.web.library;
 
 import com.pantheon.backend.service.librarydiscovery.local.LibraryLocalDiscoveryService;
+import com.pantheon.backend.web.sse.SsePubSub;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

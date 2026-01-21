@@ -4,7 +4,7 @@ import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
 import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
 import com.pantheon.backend.event.localscan.LocalScanErrorEvent;
 import com.pantheon.backend.event.localscan.LocalScanStartedEvent;
-import com.pantheon.backend.web.SsePubSub;
+import com.pantheon.backend.web.sse.SsePubSub;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
