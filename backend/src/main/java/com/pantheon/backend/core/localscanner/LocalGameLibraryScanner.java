@@ -24,10 +24,11 @@ public abstract class LocalGameLibraryScanner {
 
     protected Platform getPlatform() {
         if (this.cachedPlatform == null) {
+
             String name = getPlatformName();
 
-            this.cachedPlatform = platformRepository.findByName(name)
-                    .orElse(null);
+            this.cachedPlatform = platformRepository.findByName(name).orElse(null);
+
         }
         return this.cachedPlatform;
     }
