@@ -23,16 +23,16 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
-public class LibraryLocalDiscoveryService {
+public class PlatformLocalDiscoveryService {
 
     private final PlatformRepository platformRepository;
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
     private final PlatformLocalScanService platformLocalScanService;
 
     @Autowired
-    public LibraryLocalDiscoveryService(PlatformRepository platformRepository,
-                                        PlatformLocalScanService platformLocalScanService,
-                                        LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
+    public PlatformLocalDiscoveryService(PlatformRepository platformRepository,
+                                         PlatformLocalScanService platformLocalScanService,
+                                         LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
 
         this.platformRepository = platformRepository;
         this.platformLocalScanService = platformLocalScanService;

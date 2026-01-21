@@ -5,7 +5,7 @@ import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
-import lombok.NonNull;
+import com.pantheon.backend.service.utils.ScannerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -33,25 +30,22 @@ import java.util.stream.Collectors;
 public class PlatformLocalScanService {
 
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
-    private final Map<String, LocalGameLibraryScanner> localGameLibraryClientMap;
     private final PlatformLocalGamesProcessor platformLocalGamesProcessor;
+    private final ScannerUtil scannerUtil;
 
     /**
      * Initializes the scan service and builds a strategy map of available scanners.
      *
      * @param localScanNotificationOrchestrationService Orchestrator for scan-progress events.
      * @param platformLocalGamesProcessor               Responsible for the actual path-specific scanning
-     * @param localGameLibraryScanners                  List of all {@link LocalGameLibraryScanner} beans found in the context.
+     * @param ScannerUtil                               Utility class for fetching scanners
+     *                                                  List of all {@link LocalGameLibraryScanner} beans found in the context.
      */
     @Autowired
-    public PlatformLocalScanService(LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService,
-                                    List<LocalGameLibraryScanner> localGameLibraryScanners,
-                                    PlatformLocalGamesProcessor platformLocalGamesProcessor) {
+    public PlatformLocalScanService(LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService, ScannerUtil scannerUtil, PlatformLocalGamesProcessor platformLocalGamesProcessor) {
 
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
-        this.localGameLibraryClientMap = localGameLibraryScanners.stream()
-                .collect(Collectors.toMap(LocalGameLibraryScanner::getPlatformName, Function.identity()));
-
+        this.scannerUtil = scannerUtil;
         this.platformLocalGamesProcessor = platformLocalGamesProcessor;
     }
 
@@ -73,7 +67,7 @@ public class PlatformLocalScanService {
         LocalGameLibraryScanner client;
 
         try {
-            client = getScannerForPlatform(platform);
+            client = scannerUtil.getScannerForPlatform(platform);
         } catch (IllegalStateException e) {
             localScanNotificationOrchestrationService.notifyError(platformName, e.getMessage());
             throw e;
@@ -135,16 +129,5 @@ public class PlatformLocalScanService {
         }
     }
 
-    private LocalGameLibraryScanner getScannerForPlatform(@NonNull Platform platform) throws IllegalStateException {
-
-        LocalGameLibraryScanner scanner = localGameLibraryClientMap.get(platform.getName());
-
-        if (scanner == null) {
-            log.error("{}: No LibraryClient found ", platform.getName());
-            throw new IllegalStateException("No scanner implementation found for type: " + platform.getName());
-        }
-
-        return scanner;
-    }
 
 }

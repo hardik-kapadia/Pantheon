@@ -1,7 +1,7 @@
 package com.pantheon.backend.service.localdiscovery;
 
 import com.pantheon.backend.repository.PlatformRepository;
-import com.pantheon.backend.service.librarydiscovery.local.LibraryLocalDiscoveryService;
+import com.pantheon.backend.service.librarydiscovery.local.PlatformLocalDiscoveryService;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
 
@@ -20,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class LibraryLocalDiscoveryServiceTest {
+public class PlatformLocalDiscoveryServiceTest {
 
-    private static final Logger log = LoggerFactory.getLogger(LibraryLocalDiscoveryServiceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(PlatformLocalDiscoveryServiceTest.class);
 
     @Mock
     private PlatformRepository platformRepository;
@@ -34,7 +34,7 @@ public class LibraryLocalDiscoveryServiceTest {
     private PlatformLocalScanService platformLocalScanService;
 
     @InjectMocks
-    private LibraryLocalDiscoveryService libraryLocalDiscoveryService;
+    private PlatformLocalDiscoveryService platformLocalDiscoveryService;
 
     @Test
     @DisplayName("Invalid Platform Name: scanPlatform should throw an Illegal Argument exception if invalid name is provided")
@@ -44,7 +44,7 @@ public class LibraryLocalDiscoveryServiceTest {
 
         when(platformRepository.findByName("XYZ")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> libraryLocalDiscoveryService.scanPlatform(invalidName));
+        assertThrows(IllegalArgumentException.class, () -> platformLocalDiscoveryService.scanPlatform(invalidName));
 
     }
 

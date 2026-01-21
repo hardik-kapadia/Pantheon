@@ -45,5 +45,9 @@ public abstract class LocalGameLibraryScanner {
 
     }
 
+    public void refreshPlatform() {
+        this.cachedPlatform = null;
+    }
+
 
 }

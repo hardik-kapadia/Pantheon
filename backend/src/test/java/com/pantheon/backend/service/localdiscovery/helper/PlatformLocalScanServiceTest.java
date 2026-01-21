@@ -9,7 +9,7 @@ import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalGamesProcessor;
 import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
-
+import com.pantheon.backend.service.utils.ScannerUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +43,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class PlatformLocalScanServiceTest {
 
+    // TODO: fix tests for new ScannerUtil Logic
+
     private static final Logger log = LoggerFactory.getLogger(PlatformLocalScanServiceTest.class);
 
     @Mock
@@ -52,20 +55,17 @@ public class PlatformLocalScanServiceTest {
     private LocalGameLibraryScanner mockSteamScanner;
     @Mock
     private LocalGameLibraryScanner mockEpicScanner;
+    @Mock
+    private ScannerUtil mockScannerUtil;
 
     private PlatformLocalScanService platformLocalScanService;
 
     @BeforeEach
     void setUp() {
 
-        when(mockSteamScanner.getPlatformName()).thenReturn("Steam");
-        when(mockEpicScanner.getPlatformName()).thenReturn("Epic");
-
-        List<LocalGameLibraryScanner> scanners = List.of(mockSteamScanner, mockEpicScanner);
-
         platformLocalScanService = new PlatformLocalScanService(
                 localScanNotificationOrchestrationService,
-                scanners,
+                mockScannerUtil,
                 platformLocalGamesProcessor
         );
     }

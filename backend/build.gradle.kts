@@ -33,6 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.hibernate.orm:hibernate-community-dialects")
     implementation("org.mapstruct:mapstruct:1.6.3")
     implementation("io.vavr:vavr:0.11.0")
