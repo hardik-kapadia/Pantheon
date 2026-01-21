@@ -1,7 +1,6 @@
 package com.pantheon.backend.dto;
 
 import com.pantheon.backend.model.PlatformType;
-
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -15,6 +14,7 @@ public record ScannedLocalGameDTO(
         String installPath,
         boolean isInstalled,
         LocalDateTime lastPlayed,
-        Integer playtimeMinutes
+        Integer playtimeMinutes,
+        Long downloadSize
 ) {
 }

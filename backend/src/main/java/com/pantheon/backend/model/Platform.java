@@ -54,6 +54,11 @@ public class Platform {
     @Column(name = "path")
     private List<String> libraryPaths = new ArrayList<>();
 
+    @Builder.Default
+    @Column(name = "executable_path")
+    private String executablePath = null;
+
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

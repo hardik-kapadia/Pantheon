@@ -47,14 +47,23 @@ public class LibraryEntry {
     @Column(name = "is_installed")
     private boolean isInstalled;
 
+    @Column(name = "install_path")
     private String installPath;
 
+    @Column(name = "platform_game_id")
     private String platformGameId;
 
     @Builder.Default
+    @Column(name = "playtime_minutes")
     private Integer playtimeMinutes = 0;
 
-    private LocalDateTime lastPlayed;
+    @Builder.Default
+    @Column(name = "game_size")
+    private Long gameSize = 0L;
+
+    @Builder.Default
+    @Column(name = "last_played")
+    private LocalDateTime lastPlayed = null;
 
     @Override
     public final boolean equals(Object o) {

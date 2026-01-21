@@ -10,6 +10,7 @@ CREATE TABLE platform_paths (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     platform_id INTEGER NOT NULL,
     path TEXT NOT NULL,
+    executable_path TEXT NOT NULL
 
     FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE CASCADE
 );
@@ -24,6 +25,7 @@ INSERT INTO platforms (name, type) VALUES
 
 INSERT INTO platform_paths (platform_id, path) VALUES
 (1, 'C:/Program Files (x86)/Steam'),         -- Steam
+(1, 'G:/Play/Steam'),         -- Steam
 (2, 'C:/Program Files/Epic Games'),          -- Epic
 (3, 'C:/GOG Games'),                         -- GOG
 (4, 'C:/Program Files (x86)/Battle.net'),    -- Battle.net
@@ -49,6 +51,7 @@ CREATE TABLE library_entries (
     platform_game_id TEXT,
     playtime_minutes INTEGER DEFAULT 0,
     last_played TIMESTAMP,
+    game_size BIGINT,
 
     FOREIGN KEY (game_id) REFERENCES games(id),
     FOREIGN KEY (platform_id) REFERENCES platforms(id),

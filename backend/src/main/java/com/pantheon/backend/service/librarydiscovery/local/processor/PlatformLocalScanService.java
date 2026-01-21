@@ -5,13 +5,11 @@ import com.pantheon.backend.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.exception.ScanFailureException;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
-
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -69,8 +67,11 @@ public class PlatformLocalScanService {
     @Async
     public void scanPlatformPaths(Platform platform) throws IllegalStateException {
 
+        log.info("{}: Attempting scan", platform.getName());
+
         String platformName = platform.getName();
         LocalGameLibraryScanner client;
+
         try {
             client = getScannerForPlatform(platform);
         } catch (IllegalStateException e) {
@@ -80,7 +81,13 @@ public class PlatformLocalScanService {
 
         String phase = "Initializing";
 
-        List<String> libraryPaths = getLibraryPathsForPlatform(platform);
+        List<String> libraryPaths = client.getConfiguredLibraryPaths();
+
+        if (libraryPaths == null || libraryPaths.isEmpty()) {
+            log.error("{}: No Library Paths Configured", platform.getName());
+            localScanNotificationOrchestrationService.notifyError(platform.getName(), "No Library Paths Configured");
+            throw new IllegalStateException("No libraries paths configured");
+        }
 
         localScanNotificationOrchestrationService.notifyStart(platformName);
 
@@ -126,19 +133,6 @@ public class PlatformLocalScanService {
             log.info("{}: Scan completed, totalPaths: {}, failed: {}", platformName, libraryPaths.size(), failedPaths);
             localScanNotificationOrchestrationService.notifyComplete(platformName, totalGamesFound, failedPaths.size(), failedPaths);
         }
-    }
-
-    private List<String> getLibraryPathsForPlatform(Platform platform) throws IllegalStateException {
-
-        List<String> libraryPaths = platform.getLibraryPaths();
-
-        if (libraryPaths == null || libraryPaths.isEmpty()) {
-            log.error("{}: No Library Paths Configured", platform.getName());
-            localScanNotificationOrchestrationService.notifyError(platform.getName(), "No Library Paths Configured");
-            throw new IllegalStateException("No libraries paths configured");
-        }
-
-        return libraryPaths;
     }
 
     private LocalGameLibraryScanner getScannerForPlatform(@NonNull Platform platform) throws IllegalStateException {

@@ -1,14 +1,14 @@
 package com.pantheon.backend.service.localdiscovery;
 
 import com.pantheon.backend.repository.PlatformRepository;
-import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
-import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.service.librarydiscovery.local.LibraryLocalDiscoveryService;
+import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
@@ -33,12 +33,8 @@ public class LibraryLocalDiscoveryServiceTest {
     @Mock
     private PlatformLocalScanService platformLocalScanService;
 
+    @InjectMocks
     private LibraryLocalDiscoveryService libraryLocalDiscoveryService;
-
-    @BeforeEach
-    void setUp() {
-        libraryLocalDiscoveryService = new LibraryLocalDiscoveryService(platformRepository, platformLocalScanService, localScanNotificationOrchestrationService);
-    }
 
     @Test
     @DisplayName("Invalid Platform Name: scanPlatform should throw an Illegal Argument exception if invalid name is provided")

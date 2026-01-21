@@ -4,12 +4,10 @@ import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.PlatformRepository;
 import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.service.librarydiscovery.local.processor.PlatformLocalScanService;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,8 +64,10 @@ public class LibraryLocalDiscoveryService {
         List<Platform> platformList;
 
         if (platforms == null || platforms.length == 0) {
+            log.info("Attempting scan request initiation for all platforms");
             platformList = platformRepository.findAll();
         } else {
+            log.info("Attempting scan request initiation for platforms: {}", Arrays.toString(platforms));
             platformList = Arrays.stream(platforms).map(platformName -> {
                 try {
                     return getPlatformByName(platformName);
@@ -76,6 +76,8 @@ public class LibraryLocalDiscoveryService {
                 }
             }).filter(Objects::nonNull).toList();
         }
+
+        log.info("Initiating Scan request for: {}", platformList);
 
         for (Platform platform : platformList) {
             try {

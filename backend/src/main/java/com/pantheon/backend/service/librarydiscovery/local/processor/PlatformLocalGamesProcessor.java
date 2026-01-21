@@ -7,12 +7,10 @@ import com.pantheon.backend.model.LibraryEntry;
 import com.pantheon.backend.model.Platform;
 import com.pantheon.backend.repository.GameRepository;
 import com.pantheon.backend.repository.LibraryEntryRepository;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -57,6 +55,8 @@ public class PlatformLocalGamesProcessor {
 
     private void createOrUpdateLibraryEntry(Game game, Platform platform, ScannedLocalGameDTO dto) {
 
+        log.info("{}: Creating/Updating library entry {}", platform.getName(), dto.toString());
+
         LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId())
                 .orElseGet(() -> {
                     LibraryEntry newEntry = new LibraryEntry();
@@ -69,12 +69,18 @@ public class PlatformLocalGamesProcessor {
         entry.setInstallPath(dto.installPath());
         entry.setPlatformGameId(dto.platformGameId());
 
-        if (dto.playtimeMinutes() != null) {
+        if (dto.playtimeMinutes() != null && dto.playtimeMinutes() > 0) {
             entry.setPlaytimeMinutes(dto.playtimeMinutes());
         }
+
+        if (dto.downloadSize() != null && dto.downloadSize() > 0) {
+            entry.setGameSize(dto.downloadSize());
+        }
+
         if (dto.lastPlayed() != null) {
             entry.setLastPlayed(dto.lastPlayed());
         }
+
 
         libraryEntryRepository.save(entry);
     }

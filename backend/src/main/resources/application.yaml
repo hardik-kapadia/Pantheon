@@ -26,6 +26,12 @@ spring:
     hibernate:
       ddl-auto: validate
 
+logging:
+  level:
+    com:
+      pantheon:
+        backend: DEBUG
+
 app:
   sse:
     batch:
