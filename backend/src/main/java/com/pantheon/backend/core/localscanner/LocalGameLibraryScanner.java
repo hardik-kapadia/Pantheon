@@ -20,7 +20,6 @@ public abstract class LocalGameLibraryScanner {
 
     public abstract String getPlatformName();
 
-
     public abstract List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException;
 
     protected Platform getPlatform() {
