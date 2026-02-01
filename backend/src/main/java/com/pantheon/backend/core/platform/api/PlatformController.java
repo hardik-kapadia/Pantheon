@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,10 +32,7 @@ public class PlatformController {
      */
     @PostMapping("/create")
     public ResponseEntity<String> createPlatform() {
-
-        // TODO: Add functionality for generic platforms (starting from the scanner implementations)
-
-        return null;
+        return ResponseEntity.internalServerError().body("Not implemented yet");
     }
 
     /**
@@ -44,9 +42,10 @@ public class PlatformController {
      * @return ResponseEntity<PlatformDTO>
      */
     @PostMapping("/setup")
-    public ResponseEntity<PlatformDTO> configurePlatform(PlatformSetupDTO platformSetupDTO) throws IllegalArgumentException {
+    public ResponseEntity<PlatformDTO> configurePlatform(@RequestBody PlatformSetupDTO platformSetupDTO) throws IllegalArgumentException {
 
-        if (platformSetupDTO.name().isBlank() || platformSetupDTO.executablePath().isBlank()) {
+        if (platformSetupDTO.name() == null || platformSetupDTO.name().isBlank() ||
+                platformSetupDTO.executablePath() == null || platformSetupDTO.executablePath().isBlank()) {
 
             String missing = platformSetupDTO.executablePath().isBlank() ? "Executable Path" : "Name";
 
@@ -54,6 +53,7 @@ public class PlatformController {
         }
 
         return ResponseEntity.ok(platformLocalService.setupLocalPlatform(platformSetupDTO));
+
 
     }
 

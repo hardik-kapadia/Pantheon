@@ -62,6 +62,7 @@ public class Game {
             joinColumns = @JoinColumn(name = "game_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
+
     @ToString.Exclude
     private Set<Tag> tags = new HashSet<>();
 

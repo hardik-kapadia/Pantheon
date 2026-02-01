@@ -1,4 +1,4 @@
-package com.pantheon.backend.core.inventory.local.mapper;
+package com.pantheon.backend.core.inventory.mapper;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.inventory.model.Game;

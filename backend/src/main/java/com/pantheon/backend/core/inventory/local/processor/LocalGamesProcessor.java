@@ -1,7 +1,7 @@
 package com.pantheon.backend.core.inventory.local.processor;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
-import com.pantheon.backend.core.inventory.local.mapper.GameMapper;
+import com.pantheon.backend.core.inventory.mapper.GameMapper;
 import com.pantheon.backend.core.inventory.model.Game;
 import com.pantheon.backend.core.inventory.model.LibraryEntry;
 import com.pantheon.backend.core.platform.model.Platform;
