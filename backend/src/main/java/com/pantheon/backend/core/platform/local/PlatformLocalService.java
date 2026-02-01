@@ -1,6 +1,6 @@
 package com.pantheon.backend.core.platform.local;
 
-import com.pantheon.backend.core.platform.local.dto.PlatformDTO;
+import com.pantheon.backend.core.platform.dto.PlatformDTO;
 import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.platform.model.PlatformType;

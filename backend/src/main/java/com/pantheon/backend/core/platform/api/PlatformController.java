@@ -1,6 +1,6 @@
 package com.pantheon.backend.core.platform.api;
 
-import com.pantheon.backend.core.platform.local.dto.PlatformDTO;
+import com.pantheon.backend.core.platform.dto.PlatformDTO;
 import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
 import com.pantheon.backend.core.platform.local.PlatformLocalService;
 import lombok.RequiredArgsConstructor;
