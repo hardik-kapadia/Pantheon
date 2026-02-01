@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
+    jacoco
 }
 
 group = "com.pantheon"
@@ -25,7 +26,6 @@ repositories {
 }
 
 dependencies {
-
 
     annotationProcessor("org.projectlombok:lombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
@@ -56,9 +56,26 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+val exclusionList = listOf(
+    "**/dto/**",
+    "**/model/**",
+    "**/repository/**",
+    "**/config/**",            // Usually config is excluded too
+    "**/BackendApplication*",  // The main class
+    "**/SsePubSub*",            // Exclude until you are ready to test it
+    "**/*Exception*",
+    "**/exception/**",
+    "**/*MapperImpl*"
+)
+
+val filteredClassFiles: FileTree? = sourceSets.main.get().output.asFileTree.matching {
+    exclude(exclusionList)
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
     jvmArgs("--enable-preview", "-XX:+EnableDynamicAgentLoading")
+    finalizedBy("jacocoTestReport")
 }
 
 tasks.register("testThenBuild") {
@@ -78,3 +95,47 @@ tasks.register("testThenRun") {
 tasks.named("bootRun") {
     mustRunAfter("test")
 }
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    classDirectories.setFrom(filteredClassFiles)
+}
+
+tasks.jacocoTestCoverageVerification {
+
+    dependsOn(tasks.jacocoTestReport)
+
+    classDirectories.setFrom(filteredClassFiles)
+
+    violationRules {
+        rule {
+            element = "BUNDLE"
+
+            limit {
+                counter = "METHOD"
+                value = "COVEREDRATIO"
+                minimum = 0.80.toBigDecimal() // Replace with your 'x'
+            }
+
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = 0.60.toBigDecimal() // Replace with your 'y'
+            }
+        }
+    }
+}
+
+tasks.register("testWithCoverage") {
+    group = "verification"
+    description = "Runs tests, generates report, and fails if coverage is too low."
+
+    // This chain ensures: test -> jacocoTestReport -> jacocoTestCoverageVerification
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
+
