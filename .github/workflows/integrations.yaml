@@ -1,0 +1,39 @@
+name: Pantheon Integration Gate
+
+# TRIGGER: Run on any PR to main, or when you push directly to main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Tests & Verify Coverage
+        run: ./gradlew testWithCoverage
+
+      - name: Build Application
+        run: ./gradlew build -x test
+
+      - name: Upload Coverage Report
+        if: always() # Run even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html/
