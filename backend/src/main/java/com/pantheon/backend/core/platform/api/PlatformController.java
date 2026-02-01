@@ -47,7 +47,7 @@ public class PlatformController {
         if (platformSetupDTO.name() == null || platformSetupDTO.name().isBlank() ||
                 platformSetupDTO.executablePath() == null || platformSetupDTO.executablePath().isBlank()) {
 
-            String missing = platformSetupDTO.executablePath().isBlank() ? "Executable Path" : "Name";
+            String missing = platformSetupDTO.executablePath() == null || platformSetupDTO.executablePath().isBlank() ? "Executable Path" : "Name";
 
             throw new IllegalArgumentException(missing + " is missing");
         }

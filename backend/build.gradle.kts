@@ -62,10 +62,13 @@ val exclusionList = listOf(
     "**/repository/**",
     "**/config/**",            // Usually config is excluded too
     "**/BackendApplication*",  // The main class
-    "**/SsePubSub*"            // Exclude until you are ready to test it
+    "**/SsePubSub*",            // Exclude until you are ready to test it
+    "**/*Exception*",
+    "**/exception/**",
+    "**/*MapperImpl*"
 )
 
-val filteredClassFiles = sourceSets.main.get().output.asFileTree.matching {
+val filteredClassFiles: FileTree? = sourceSets.main.get().output.asFileTree.matching {
     exclude(exclusionList)
 }
 
