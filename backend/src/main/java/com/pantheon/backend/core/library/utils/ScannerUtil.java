@@ -1,7 +1,7 @@
-package com.pantheon.backend.utils;
+package com.pantheon.backend.core.library.utils;
 
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
-import com.pantheon.backend.model.Platform;
+import com.pantheon.backend.core.platform.model.Platform;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

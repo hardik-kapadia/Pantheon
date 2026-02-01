@@ -2,11 +2,11 @@ package com.pantheon.backend.core.inventory.local.processor;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.inventory.local.mapper.GameMapper;
-import com.pantheon.backend.model.Game;
-import com.pantheon.backend.model.LibraryEntry;
-import com.pantheon.backend.model.Platform;
-import com.pantheon.backend.repository.GameRepository;
-import com.pantheon.backend.repository.LibraryEntryRepository;
+import com.pantheon.backend.core.inventory.model.Game;
+import com.pantheon.backend.core.inventory.model.LibraryEntry;
+import com.pantheon.backend.core.platform.model.Platform;
+import com.pantheon.backend.core.inventory.repository.GameRepository;
+import com.pantheon.backend.core.inventory.repository.LibraryEntryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

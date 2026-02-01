@@ -1,7 +1,7 @@
-package com.pantheon.backend.web.library;
+package com.pantheon.backend.core.inventory.api;
 
 import com.pantheon.backend.core.inventory.local.InventoryLocalDiscoveryService;
-import com.pantheon.backend.web.sse.SsePubSub;
+import com.pantheon.backend.core.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +18,10 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/api/library/discovery")
 @RequiredArgsConstructor
-public class PlatformDiscoveryController {
+public class InventoryController {
 
     private final InventoryLocalDiscoveryService inventoryLocalDiscoveryService;
-    private final SsePubSub ssePubSub;
+    private final NotificationService notificationService;
 
     @PostMapping("/scan/{platform}")
     public ResponseEntity<String> scanPlatform(@PathVariable String platform) {
@@ -44,6 +44,6 @@ public class PlatformDiscoveryController {
 
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamEvents() {
-        return ssePubSub.subscribe();
+        return notificationService.subscribe();
     }
 }

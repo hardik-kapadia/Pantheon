@@ -1,11 +1,11 @@
 package com.pantheon.backend.core.platform.local;
 
-import com.pantheon.backend.dto.platform.PlatformDTO;
-import com.pantheon.backend.dto.platform.PlatformSetupDTO;
-import com.pantheon.backend.model.Platform;
-import com.pantheon.backend.model.PlatformType;
-import com.pantheon.backend.repository.PlatformRepository;
-import com.pantheon.backend.utils.ScannerUtil;
+import com.pantheon.backend.core.platform.local.dto.PlatformDTO;
+import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
+import com.pantheon.backend.core.platform.model.Platform;
+import com.pantheon.backend.core.platform.model.PlatformType;
+import com.pantheon.backend.core.platform.repository.PlatformRepository;
+import com.pantheon.backend.core.library.utils.ScannerUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

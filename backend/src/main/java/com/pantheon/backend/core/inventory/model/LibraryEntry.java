@@ -1,17 +1,16 @@
-package com.pantheon.backend.model;
+package com.pantheon.backend.core.inventory.model;
 
-import jakarta.persistence.CollectionTable;
+import com.pantheon.backend.core.platform.model.Platform;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,43 +20,51 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "platforms")
+@Table(name = "library_entries", uniqueConstraints = {@UniqueConstraint(columnNames = {"game_id", "platform_id"})})
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Platform {
+public class LibraryEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "game_id")
+    private Game game;
 
-    private String iconUrl;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "platform_id")
+    private Platform platform;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PlatformType type;
+    @Column(name = "is_installed")
+    private boolean isInstalled;
+
+    @Column(name = "install_path")
+    private String installPath;
+
+    @Column(name = "platform_game_id")
+    private String platformGameId;
 
     @Builder.Default
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "platform_paths", joinColumns = @JoinColumn(name = "platform_id"))
-    @Column(name = "path")
-    private List<String> libraryPaths = new ArrayList<>();
+    @Column(name = "playtime_minutes")
+    private Integer playtimeMinutes = 0;
 
     @Builder.Default
-    @Column(name = "executable_path")
-    private String executablePath = null;
+    @Column(name = "game_size")
+    private Long gameSize = 0L;
 
+    @Builder.Default
+    @Column(name = "last_played")
+    private LocalDateTime lastPlayed = null;
 
     @Override
     public final boolean equals(Object o) {
@@ -66,8 +73,8 @@ public class Platform {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Platform platform = (Platform) o;
-        return getId() != null && Objects.equals(getId(), platform.getId());
+        LibraryEntry that = (LibraryEntry) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override

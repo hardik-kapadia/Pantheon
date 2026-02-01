@@ -1,5 +1,6 @@
-package com.pantheon.backend.model;
+package com.pantheon.backend.core.inventory.model;
 
+import com.pantheon.backend.shared.model.Tag;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

@@ -1,7 +1,7 @@
 package com.pantheon.backend.core.inventory.local.mapper;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
-import com.pantheon.backend.model.Game;
+import com.pantheon.backend.core.inventory.model.Game;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

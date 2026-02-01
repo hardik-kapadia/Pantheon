@@ -1,7 +1,7 @@
-package com.pantheon.backend.dto.platform;
+package com.pantheon.backend.core.platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.pantheon.backend.model.PlatformType;
+import com.pantheon.backend.core.platform.model.PlatformType;
 import lombok.Builder;
 
 import java.util.List;

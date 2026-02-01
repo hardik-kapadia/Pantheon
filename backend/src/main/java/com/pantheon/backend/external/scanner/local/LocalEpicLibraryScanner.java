@@ -1,9 +1,9 @@
-package com.pantheon.backend.external.provider.local;
+package com.pantheon.backend.external.scanner.local;
 
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.repository.PlatformRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

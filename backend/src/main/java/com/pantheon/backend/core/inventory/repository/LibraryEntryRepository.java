@@ -1,6 +1,6 @@
-package com.pantheon.backend.repository;
+package com.pantheon.backend.core.inventory.repository;
 
-import com.pantheon.backend.model.LibraryEntry;
+import com.pantheon.backend.core.inventory.model.LibraryEntry;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

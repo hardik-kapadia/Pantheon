@@ -1,7 +1,7 @@
 package com.pantheon.backend.core.inventory.local;
 
-import com.pantheon.backend.model.Platform;
-import com.pantheon.backend.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.model.Platform;
+import com.pantheon.backend.core.platform.repository.PlatformRepository;
 import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.core.inventory.local.processor.InventoryLocalScanService;
 import lombok.extern.slf4j.Slf4j;

@@ -3,7 +3,8 @@ package com.pantheon.backend.core.inventory.local.processor;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.model.Platform;
+import com.pantheon.backend.core.library.utils.ScannerUtil;
+import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class InventoryLocalScanService {
 
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
     private final LocalGamesProcessor localGamesProcessor;
-    private final com.pantheon.backend.utils.ScannerUtil scannerUtil;
+    private final ScannerUtil scannerUtil;
 
     /**
      * Initializes the scan service and builds a strategy map of available scanners.
@@ -41,7 +42,7 @@ public class InventoryLocalScanService {
      *                                                  List of all {@link LocalGameLibraryScanner} beans found in the context.
      */
     @Autowired
-    public InventoryLocalScanService(LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService, com.pantheon.backend.utils.ScannerUtil scannerUtil, LocalGamesProcessor localGamesProcessor) {
+    public InventoryLocalScanService(LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService, ScannerUtil scannerUtil, LocalGamesProcessor localGamesProcessor) {
 
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
         this.scannerUtil = scannerUtil;

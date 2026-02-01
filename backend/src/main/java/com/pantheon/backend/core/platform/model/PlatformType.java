@@ -1,4 +1,4 @@
-package com.pantheon.backend.model;
+package com.pantheon.backend.core.platform.model;
 
 public enum PlatformType {
     API,

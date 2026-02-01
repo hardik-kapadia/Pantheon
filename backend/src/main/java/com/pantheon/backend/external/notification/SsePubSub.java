@@ -1,19 +1,18 @@
-package com.pantheon.backend.web.sse;
+package com.pantheon.backend.external.notification;
 
+import com.pantheon.backend.core.notification.NotificationService;
 import com.pantheon.backend.core.notification.event.localscan.LocalScanEvent;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @Service
-public class SsePubSub {
+public class SsePubSub implements NotificationService {
 
     private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
@@ -49,12 +48,11 @@ public class SsePubSub {
             } catch (IOException e) {
                 emitters.remove(emitter);
 
-                if (event instanceof LocalScanEvent) {
-                    log.error("Failed to broadcast to emitter for {}:{}", ((LocalScanEvent) event).platformName(), eventName, e);
+                if (payload instanceof LocalScanEvent localScanEvent) {
+                    log.error("Failed to broadcast to emitter for {}: {}", localScanEvent.platformName(), eventName);
                 } else {
                     log.error("Failed to broadcast {} ", eventName, e);
                 }
-
             }
         }
     }

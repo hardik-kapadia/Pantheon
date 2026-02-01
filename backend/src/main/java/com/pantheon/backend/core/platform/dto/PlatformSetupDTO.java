@@ -1,4 +1,4 @@
-package com.pantheon.backend.dto.platform;
+package com.pantheon.backend.core.platform.dto;
 
 import lombok.Builder;
 

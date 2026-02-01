@@ -1,6 +1,6 @@
 package com.pantheon.backend.core.inventory.local.dto;
 
-import com.pantheon.backend.model.PlatformType;
+import com.pantheon.backend.core.platform.model.PlatformType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

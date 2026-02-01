@@ -1,6 +1,6 @@
 package com.pantheon.backend.service.localdiscovery;
 
-import com.pantheon.backend.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.repository.PlatformRepository;
 import com.pantheon.backend.core.inventory.local.InventoryLocalDiscoveryService;
 import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.core.inventory.local.processor.InventoryLocalScanService;
