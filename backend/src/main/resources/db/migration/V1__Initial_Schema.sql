@@ -3,6 +3,8 @@ CREATE TABLE platforms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
     icon_url TEXT,
+    executable_path TEXT NOT NULL,
+
     type TEXT NOT NULL CHECK (type IN ('API', 'MANUAL')) -- API for online sync and MANUAL for locally added games
 );
 
@@ -10,26 +12,20 @@ CREATE TABLE platform_paths (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     platform_id INTEGER NOT NULL,
     path TEXT NOT NULL,
-    executable_path TEXT NOT NULL
 
     FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE CASCADE
 );
 
-INSERT INTO platforms (name, type) VALUES
-('Steam', 'API'),
-('Epic', 'API'),
-('GOG', 'API'),
-('Battle.net', 'API'),
-('Itch.io', 'API'),
-('Local', 'MANUAL');
+INSERT INTO platforms (name, type, executable_path) VALUES
+('Steam', 'API', 'C:/Program Files (x86)/Steam/steam.exe'),
+('Epic', 'API', 'C:/Program Files (x86)/Epic/epic.exe'),
+('GOG', 'API', 'C:/Program Files (x86)/GOG/gog.exe');
 
 INSERT INTO platform_paths (platform_id, path) VALUES
 (1, 'C:/Program Files (x86)/Steam'),         -- Steam
 (1, 'G:/Play/Steam'),         -- Steam
 (2, 'C:/Program Files/Epic Games'),          -- Epic
-(3, 'C:/GOG Games'),                         -- GOG
-(4, 'C:/Program Files (x86)/Battle.net'),    -- Battle.net
-(5, 'C:/Users/%USERNAME%/AppData/Roaming/itch'); -- Itch
+(3, 'C:/GOG Games');                         -- GOG
 
 CREATE TABLE games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

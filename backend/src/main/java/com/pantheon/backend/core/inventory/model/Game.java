@@ -64,6 +64,7 @@ public class Game {
     )
 
     @ToString.Exclude
+    @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
     @Override
