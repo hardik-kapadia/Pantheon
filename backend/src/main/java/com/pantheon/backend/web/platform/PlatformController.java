@@ -2,7 +2,7 @@ package com.pantheon.backend.web.platform;
 
 import com.pantheon.backend.dto.platform.PlatformDTO;
 import com.pantheon.backend.dto.platform.PlatformSetupDTO;
-import com.pantheon.backend.service.platform.local.PlatformLocalService;
+import com.pantheon.backend.core.platform.local.PlatformLocalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

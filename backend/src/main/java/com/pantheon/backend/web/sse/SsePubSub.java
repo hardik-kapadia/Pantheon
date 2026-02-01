@@ -1,6 +1,6 @@
 package com.pantheon.backend.web.sse;
 
-import com.pantheon.backend.event.localscan.LocalScanEvent;
+import com.pantheon.backend.core.notification.event.localscan.LocalScanEvent;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

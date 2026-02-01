@@ -1,6 +1,6 @@
 package com.pantheon.backend.web.library;
 
-import com.pantheon.backend.service.librarydiscovery.local.PlatformLocalDiscoveryService;
+import com.pantheon.backend.core.inventory.local.InventoryLocalDiscoveryService;
 import com.pantheon.backend.web.sse.SsePubSub;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -20,19 +20,19 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class PlatformDiscoveryController {
 
-    private final PlatformLocalDiscoveryService platformLocalDiscoveryService;
+    private final InventoryLocalDiscoveryService inventoryLocalDiscoveryService;
     private final SsePubSub ssePubSub;
 
     @PostMapping("/scan/{platform}")
     public ResponseEntity<String> scanPlatform(@PathVariable String platform) {
-        platformLocalDiscoveryService.scanPlatform(platform);
+        inventoryLocalDiscoveryService.scanPlatform(platform);
         return ResponseEntity.accepted().body("Scan initiated for " + platform);
     }
 
     @PostMapping("/scan")
     public ResponseEntity<String> scanPlatforms(@RequestParam(required = false) String[] platforms) {
 
-        platformLocalDiscoveryService.scanPlatforms(platforms);
+        inventoryLocalDiscoveryService.scanPlatforms(platforms);
 
         String responseMessage = "Scan Initiated for all platforms";
 

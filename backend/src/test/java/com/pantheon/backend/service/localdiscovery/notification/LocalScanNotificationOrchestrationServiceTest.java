@@ -1,9 +1,9 @@
 package com.pantheon.backend.service.localdiscovery.notification;
 
-import com.pantheon.backend.dto.ScannedLocalGameDTO;
-import com.pantheon.backend.event.localscan.LocalScanBatchEvent;
-import com.pantheon.backend.event.localscan.LocalScanCompletedEvent;
-import com.pantheon.backend.service.librarydiscovery.local.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
+import com.pantheon.backend.core.notification.event.localscan.LocalScanBatchEvent;
+import com.pantheon.backend.core.notification.event.localscan.LocalScanCompletedEvent;
+import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
 
 import org.springframework.context.ApplicationEventPublisher;
 
