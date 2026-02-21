@@ -58,6 +58,9 @@ public class Platform {
     @Column(name = "executable_path")
     private String executablePath = null;
 
+    @Builder.Default
+    @Column(name = "manifests_path")
+    private String manifestsPath = null;
 
     @Override
     public final boolean equals(Object o) {

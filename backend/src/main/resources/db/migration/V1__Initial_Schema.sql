@@ -3,7 +3,8 @@ CREATE TABLE platforms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
     icon_url TEXT,
-    executable_path TEXT NOT NULL,
+    executable_path TEXT,
+    manifests_path TEXT,
 
     type TEXT NOT NULL CHECK (type IN ('API', 'MANUAL')) -- API for online sync and MANUAL for locally added games
 );
@@ -21,9 +22,12 @@ INSERT INTO platforms (name, type, executable_path) VALUES
 ('Epic', 'API', 'C:/Program Files (x86)/Epic/epic.exe'),
 ('GOG', 'API', 'C:/Program Files (x86)/GOG/gog.exe');
 
+INSERT INTO platforms (name, type, executable_path, manifests_path) VALUES
+('Epic', 'API', 'C:/Program Files (x86)/Epic/epic.exe', 'C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests');
+
 INSERT INTO platform_paths (platform_id, path) VALUES
 (1, 'C:/Program Files (x86)/Steam'),         -- Steam
-(1, 'G:/Play/Steam'),         -- Steam
+(1, 'G:/Play/Steam'),                        -- Steam
 (2, 'C:/Program Files/Epic Games'),          -- Epic
 (3, 'C:/GOG Games');                         -- GOG
 

@@ -1,8 +1,8 @@
 package com.pantheon.backend.external.scanner.local;
 
-import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
+import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.platform.model.PlatformType;
 import com.pantheon.backend.core.platform.repository.PlatformRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
 
     @Override
     public List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException {
-        log.info("🔎 Steam Scanner: Scanning directory {}", libraryPath);
+        log.info("Steam Scanner: Scanning directory {}", libraryPath);
 
         Path steamAppsPath = libraryPath.resolve(STEAMAPPS_DIR);
         if (!Files.exists(steamAppsPath) || !Files.isDirectory(steamAppsPath)) {
@@ -128,7 +128,7 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
                     lastPlayed = LocalDateTime.ofInstant(Instant.ofEpochSecond(unixTime), ZoneId.systemDefault());
                 }
             } catch (NumberFormatException e) {
-                log.debug("Could not parse last played timestamp for {}", name);
+                log.warn("Could not parse last played timestamp for {}", name);
             }
         }
 
@@ -137,7 +137,7 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
             try {
                 sizeOnDisk = Long.parseLong(data.get("sizeondisk"));
             } catch (NumberFormatException ignored) {
-                log.debug("Could not parse size on disk for {}", name);
+                log.warn("Could not parse size on disk for {}", name);
             }
         }
 
@@ -153,7 +153,7 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
                 .downloadSize(sizeOnDisk)
                 .playtimeMinutes(playtimeMinutes);
 
-        if (lastPlayed != null) scannedLocalGameDTOBuilder.lastPlayed(lastPlayed);
+        if (lastPlayed != null) scannedLocalGameDTOBuilder = scannedLocalGameDTOBuilder.lastPlayed(lastPlayed);
 
         return scannedLocalGameDTOBuilder.build();
     }
