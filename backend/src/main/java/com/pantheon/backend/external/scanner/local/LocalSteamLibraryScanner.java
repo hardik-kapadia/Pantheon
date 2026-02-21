@@ -43,12 +43,12 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
     }
 
     @Override
-    public List<ScannedLocalGameDTO> scan(Path path) throws ScanFailureException {
-        log.info("Steam Scanner: Scanning directory {}", path);
+    public List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException {
+        log.info("Steam Scanner: Scanning directory {}", libraryPath);
 
-        Path steamAppsPath = path.resolve(STEAMAPPS_DIR);
+        Path steamAppsPath = libraryPath.resolve(STEAMAPPS_DIR);
         if (!Files.exists(steamAppsPath) || !Files.isDirectory(steamAppsPath)) {
-            log.warn("Steam library path valid, but '{}' directory not found at {}", STEAMAPPS_DIR, path);
+            log.warn("Steam library path valid, but '{}' directory not found at {}", STEAMAPPS_DIR, libraryPath);
             return List.of();
         }
 
@@ -67,7 +67,7 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
             // 3. Process each manifest
             for (Path manifest : manifests) {
                 try {
-                    ScannedLocalGameDTO game = parseManifest(manifest, path);
+                    ScannedLocalGameDTO game = parseManifest(manifest, libraryPath);
 
                     if (game != null) foundGames.add(game);
 
