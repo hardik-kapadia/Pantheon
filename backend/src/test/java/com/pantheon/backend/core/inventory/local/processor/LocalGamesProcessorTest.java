@@ -5,7 +5,6 @@ import com.pantheon.backend.core.inventory.mapper.GameMapper;
 import com.pantheon.backend.core.inventory.model.Game;
 import com.pantheon.backend.core.inventory.model.LocalInstallation;
 import com.pantheon.backend.core.inventory.repository.GameRepository;
-import com.pantheon.backend.core.inventory.repository.LibraryEntryRepository;
 import com.pantheon.backend.core.platform.model.Platform;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

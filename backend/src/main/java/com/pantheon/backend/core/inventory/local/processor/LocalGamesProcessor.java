@@ -6,7 +6,6 @@ import com.pantheon.backend.core.inventory.model.Game;
 import com.pantheon.backend.core.inventory.model.LocalInstallation;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.inventory.repository.GameRepository;
-import com.pantheon.backend.core.inventory.repository.LibraryEntryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
