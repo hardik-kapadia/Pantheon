@@ -3,7 +3,7 @@ package com.pantheon.backend.core.inventory.local.processor;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.inventory.mapper.GameMapper;
 import com.pantheon.backend.core.inventory.model.Game;
-import com.pantheon.backend.core.inventory.model.LibraryEntry;
+import com.pantheon.backend.core.inventory.model.LocalInstallation;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.inventory.repository.GameRepository;
 import com.pantheon.backend.core.inventory.repository.LibraryEntryRepository;
@@ -57,9 +57,9 @@ public class LocalGamesProcessor {
 
         log.info("{}: Creating/Updating library entry {}", platform.getName(), dto.toString());
 
-        LibraryEntry entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId())
+        LocalInstallation entry = libraryEntryRepository.findByGameIdAndPlatformId(game.getId(), platform.getId())
                 .orElseGet(() -> {
-                    LibraryEntry newEntry = new LibraryEntry();
+                    LocalInstallation newEntry = new LocalInstallation();
                     newEntry.setGame(game);
                     newEntry.setPlatform(platform);
                     return newEntry;

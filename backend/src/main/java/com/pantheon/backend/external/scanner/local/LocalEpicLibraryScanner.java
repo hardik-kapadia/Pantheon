@@ -92,31 +92,28 @@ class LocalEpicLibraryScanner extends LocalGameLibraryScanner {
         try {
             JsonNode rootNode = objectMapper.readTree(manifestPath.toFile());
 
-            // Extract the required fields from the Epic JSON structure
             String title = rootNode.path("DisplayName").asText(null);
             String appName = rootNode.path("AppName").asText(null);
             String installLocation = rootNode.path("InstallLocation").asText(null);
             long installSize = rootNode.path("InstallSize").asLong(0L);
 
-            // If it's missing critical data, it might be a corrupted or partial download manifest
             if (title == null || appName == null || installLocation == null) {
                 log.warn("Epic manifest {} is missing required fields, skipping.", manifestPath.getFileName());
                 return null;
             }
 
-            // Verify the game folder actually still exists on the hard drive
             Path gameFolder = Path.of(installLocation);
             boolean isInstalled = Files.exists(gameFolder) && Files.isDirectory(gameFolder);
 
             return ScannedLocalGameDTO.builder()
                     .title(title)
-                    .platformGameId(appName) // AppName is used by Epic to launch the game (epicgames://apps/AppName)
+                    .platformGameId(appName)
                     .platformName(getPlatformName())
                     .platformType(platform.getType())
                     .installPath(installLocation)
                     .isInstalled(isInstalled)
                     .downloadSize(installSize)
-                    .playtimeMinutes(0) // Local manifests rarely have accurate playtime
+                    .playtimeMinutes(0)
                     .lastPlayed(null)
                     .build();
 

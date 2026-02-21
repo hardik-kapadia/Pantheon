@@ -1,6 +1,7 @@
 package com.pantheon.backend.core.inventory.model;
 
 import com.pantheon.backend.core.platform.model.Platform;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -20,18 +22,17 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "library_entries", uniqueConstraints = {@UniqueConstraint(columnNames = {"game_id", "platform_id"})})
+@Table(name = "remote_entitlements", uniqueConstraints = {@UniqueConstraint(columnNames = {"platform_id", "platform_game_id"})})
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class LibraryEntry {
+public class RemoteEntitlement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,12 +46,6 @@ public class LibraryEntry {
     @JoinColumn(name = "platform_id")
     private Platform platform;
 
-    @Column(name = "is_installed")
-    private boolean isInstalled;
-
-    @Column(name = "install_path")
-    private String installPath;
-
     @Column(name = "platform_game_id")
     private String platformGameId;
 
@@ -58,13 +53,17 @@ public class LibraryEntry {
     @Column(name = "playtime_minutes")
     private Integer playtimeMinutes = 0;
 
-    @Builder.Default
-    @Column(name = "game_size")
-    private Long gameSize = 0L;
+    @ToString.Exclude
+    @OneToOne(mappedBy = "entitlement", cascade = CascadeType.ALL)
+    private LocalInstallation localInstallation;
 
-    @Builder.Default
-    @Column(name = "last_played")
-    private LocalDateTime lastPlayed = null;
+    @ToString.Include(name = "installation")
+    private String getInstallationSummary() {
+        if (localInstallation == null) return "None";
+        return String.format("[%s] -> %s",
+                localInstallation.getInstallFolder(),
+                localInstallation.getExecutablePath());
+    }
 
     @Override
     public final boolean equals(Object o) {
@@ -73,7 +72,7 @@ public class LibraryEntry {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        LibraryEntry that = (LibraryEntry) o;
+        RemoteEntitlement that = (RemoteEntitlement) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 
@@ -81,4 +80,5 @@ public class LibraryEntry {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
 }

@@ -3,7 +3,7 @@ package com.pantheon.backend.core.inventory.local.processor;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.inventory.mapper.GameMapper;
 import com.pantheon.backend.core.inventory.model.Game;
-import com.pantheon.backend.core.inventory.model.LibraryEntry;
+import com.pantheon.backend.core.inventory.model.LocalInstallation;
 import com.pantheon.backend.core.inventory.repository.GameRepository;
 import com.pantheon.backend.core.inventory.repository.LibraryEntryRepository;
 import com.pantheon.backend.core.platform.model.Platform;
@@ -73,14 +73,14 @@ class LocalGamesProcessorTest {
         localGamesProcessor.processScannedGames(List.of(scannedGameDTO), platform);
 
         verify(gameRepository).save(game);
-        verify(libraryEntryRepository).save(any(LibraryEntry.class));
+        verify(libraryEntryRepository).save(any(LocalInstallation.class));
     }
 
     @Test
     void processScannedGames_ExistingGame_UpdatesLibraryEntry() {
         when(gameRepository.findByTitle("Test Game")).thenReturn(Optional.of(game));
         
-        LibraryEntry existingEntry = new LibraryEntry();
+        LocalInstallation existingEntry = new LocalInstallation();
         existingEntry.setGame(game);
         existingEntry.setPlatform(platform);
         
