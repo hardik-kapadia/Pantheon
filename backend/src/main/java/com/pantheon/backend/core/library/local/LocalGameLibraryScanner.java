@@ -2,6 +2,7 @@ package com.pantheon.backend.core.library.local;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
+import com.pantheon.backend.core.library.model.Library;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.platform.repository.PlatformRepository;
 
@@ -20,7 +21,7 @@ public abstract class LocalGameLibraryScanner {
 
     public abstract String getPlatformName();
 
-    public abstract List<ScannedLocalGameDTO> scan(Path libraryPath) throws ScanFailureException;
+    public abstract List<ScannedLocalGameDTO> scan(Path path) throws ScanFailureException;
 
     protected Platform getPlatform() {
         if (this.cachedPlatform == null) {
@@ -41,7 +42,7 @@ public abstract class LocalGameLibraryScanner {
             return null;
         }
 
-        return platform.getLibraryPaths();
+        return platform.getLibraries().stream().map(Library::getPath).toList();
 
     }
 

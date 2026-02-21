@@ -8,7 +8,6 @@ import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.platform.repository.PlatformRepository;
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,30 +43,30 @@ class LocalEpicLibraryScanner extends LocalGameLibraryScanner {
     }
 
     @Override
-    public List<ScannedLocalGameDTO> scan(@Nullable Path libraryPath) throws ScanFailureException, ConfigurationException {
+    public List<ScannedLocalGameDTO> scan(Path manifestsPath) throws ScanFailureException, ConfigurationException {
 
-        String epicManifestsPathStr = this.platform.getManifestsPath();
-
-        if (epicManifestsPathStr == null)
-            throw new ConfigurationException("EpicManifestsPath is not configured");
-
-        log.info("Epic Scanner: Scanning Manifests directory {}", epicManifestsPathStr);
-
-        Path epicManifestsPath = Path.of(epicManifestsPathStr);
-        if (!Files.exists(epicManifestsPath) || !Files.isDirectory(epicManifestsPath)) {
-            log.warn("Epic Manifests path not found at {}", epicManifestsPath);
-            throw new ConfigurationException("Epic Manifests path not found at" + epicManifestsPath);
+//        String epicManifestsPathStr = this.platform.getManifestsPath();
+//
+//        if (epicManifestsPathStr == null)
+//            throw new ConfigurationException("EpicManifestsPath is not configured");
+//
+//        log.info("Epic Scanner: Scanning Manifests directory {}", epicManifestsPathStr);
+//
+//        Path manifestPath = Path.of(epicManifestsPathStr);
+        if (!Files.exists(manifestsPath) || !Files.isDirectory(manifestsPath)) {
+            log.warn("Epic Manifests path not found at {}", manifestsPath);
+            throw new ConfigurationException("Epic Manifests path not found at" + manifestsPath);
         }
 
         List<Path> manifests;
 
-        try (Stream<Path> stream = Files.list(epicManifestsPath)) {
+        try (Stream<Path> stream = Files.list(manifestsPath)) {
             manifests = stream.filter(path -> !Files.isDirectory(path) && Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && path.getFileName().toString().endsWith(MANIFEST_EXT)).toList();
         } catch (IOException e) {
             throw new ScanFailureException("Failed to list files in Epic Manifest Path: " + e.getMessage(), e);
         }
 
-        log.info("Epic Scanner: Found {} manifest files in {}", manifests.size(), epicManifestsPath);
+        log.info("Epic Scanner: Found {} manifest files in {}", manifests.size(), manifestsPath);
 
         List<ScannedLocalGameDTO> foundGames = new ArrayList<>();
 

@@ -1,11 +1,11 @@
 package com.pantheon.backend.core.inventory.local.processor;
 
-import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
+import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.library.utils.ScannerUtil;
-import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.core.platform.model.Platform;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -37,7 +37,7 @@ public class InventoryLocalScanService {
      * Initializes the scan service and builds a strategy map of available scanners.
      *
      * @param localScanNotificationOrchestrationService Orchestrator for scan-progress events.
-     * @param localGamesProcessor               Responsible for the actual path-specific scanning
+     * @param localGamesProcessor                       Responsible for the actual path-specific scanning
      * @param ScannerUtil                               Utility class for fetching scanners
      *                                                  List of all {@link LocalGameLibraryScanner} beans found in the context.
      */
@@ -117,7 +117,7 @@ public class InventoryLocalScanService {
             }
         }
 
-        if (failedPaths.size() == platform.getLibraryPaths().size()) {
+        if (failedPaths.size() == platform.getLibraries().size()) {
             log.error("{}: Scan failed for all paths", platformName);
             localScanNotificationOrchestrationService.notifyError(platformName, failedPaths.size(), failedPaths);
         } else if (failedPaths.isEmpty()) {
