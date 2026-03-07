@@ -1,8 +1,7 @@
 package com.pantheon.backend.core.platform.api;
 
-import com.pantheon.backend.core.platform.dto.PlatformDTO;
+import com.pantheon.backend.core.platform.PlatformService;
 import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
-import com.pantheon.backend.core.platform.local.PlatformLocalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class PlatformController {
      * Adding a new Platform: Steam/ Epic/ Gog
      */
 
-    private final PlatformLocalService platformLocalService;
+    private final PlatformService platformService;
 
     /**
      *
@@ -33,28 +32,6 @@ public class PlatformController {
     @PostMapping("/create")
     public ResponseEntity<String> createPlatform() {
         return ResponseEntity.internalServerError().body("Not implemented yet");
-    }
-
-    /**
-     *
-     * Used to configure local libraries associated with steam/ epic/ gog, etc.
-     *
-     * @return ResponseEntity<PlatformDTO>
-     */
-    @PostMapping("/setup")
-    public ResponseEntity<PlatformDTO> configurePlatform(@RequestBody PlatformSetupDTO platformSetupDTO) throws IllegalArgumentException {
-
-        if (platformSetupDTO.name() == null || platformSetupDTO.name().isBlank() ||
-                platformSetupDTO.executablePath() == null || platformSetupDTO.executablePath().isBlank()) {
-
-            String missing = platformSetupDTO.executablePath() == null || platformSetupDTO.executablePath().isBlank() ? "Executable Path" : "Name";
-
-            throw new IllegalArgumentException(missing + " is missing");
-        }
-
-        return ResponseEntity.ok(platformLocalService.setupLocalPlatform(platformSetupDTO));
-
-
     }
 
 }

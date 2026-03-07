@@ -3,7 +3,7 @@ package com.pantheon.backend.external.scanner.local;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformRepository;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

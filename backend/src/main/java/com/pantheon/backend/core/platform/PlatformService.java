@@ -1,10 +1,8 @@
-package com.pantheon.backend.core.platform.local;
+package com.pantheon.backend.core.platform;
 
-import com.pantheon.backend.core.platform.dto.PlatformDTO;
 import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.platform.model.PlatformType;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
 import com.pantheon.backend.core.library.utils.ScannerUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +13,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PlatformLocalService {
+public class PlatformService {
 
     private final PlatformRepository platformRepository;
     private final ScannerUtil scannerUtil;
@@ -25,7 +23,8 @@ public class PlatformLocalService {
     }
 
     public Platform getPlatformByName(String name) throws IllegalArgumentException {
-        return platformRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException("Platform with name " + name + " not found"));
+        return platformRepository.findByName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Platform with name " + name + " not found"));
     }
 
     public PlatformDTO setupLocalPlatform(PlatformSetupDTO platformSetupDTO) throws IllegalArgumentException {
@@ -33,15 +32,13 @@ public class PlatformLocalService {
         Platform platform = getPlatformByName(platformSetupDTO.name());
         platform.setExecutablePath(platformSetupDTO.executablePath());
 
-        platform.setType(PlatformType.API);
-
         if (platformSetupDTO.iconUrl() != null) {
             platform.setIconUrl(platformSetupDTO.iconUrl());
         }
 
         if (platformSetupDTO.libraryPaths() != null && !platformSetupDTO.libraryPaths().isEmpty()) {
-            platform.getLibraryPaths().clear();
-            platform.getLibraryPaths().addAll(platformSetupDTO.libraryPaths());
+            platform.getLibraries().clear();
+            platform.getLibraries().addAll(platformSetupDTO.libraryPaths());
         }
 
         Platform saved = platformRepository.save(platform);

@@ -2,7 +2,7 @@ package com.pantheon.backend.external.scanner.local;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

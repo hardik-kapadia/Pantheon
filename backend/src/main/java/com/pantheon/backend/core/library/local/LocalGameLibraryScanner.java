@@ -3,20 +3,21 @@ package com.pantheon.backend.core.library.local;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.model.Library;
+import com.pantheon.backend.core.platform.PlatformService;
 import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformRepository;
 
 import java.nio.file.Path;
 import java.util.List;
 
 public abstract class LocalGameLibraryScanner {
 
-    private final PlatformRepository platformRepository;
+    private final PlatformService platformService;
 
     private Platform cachedPlatform;
 
-    protected LocalGameLibraryScanner(PlatformRepository platformRepository) {
-        this.platformRepository = platformRepository;
+    protected LocalGameLibraryScanner(PlatformService platformService, PlatformService platformService1) {
+        this.platformService = platformService1;
     }
 
     public abstract String getPlatformName();
@@ -28,7 +29,7 @@ public abstract class LocalGameLibraryScanner {
 
             String name = getPlatformName();
 
-            this.cachedPlatform = platformRepository.findByName(name).orElse(null);
+            this.cachedPlatform = platformService.getPlatformByName(name).orElse(null);
 
         }
         return this.cachedPlatform;

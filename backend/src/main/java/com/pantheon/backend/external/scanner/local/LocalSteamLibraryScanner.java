@@ -4,7 +4,7 @@ import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.platform.model.PlatformType;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

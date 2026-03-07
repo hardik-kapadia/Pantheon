@@ -49,9 +49,8 @@ public class Library {
 
     private String path;
 
-    @Builder.Default
     @Column(name = "is_global")
-    private boolean isGlobal = false;
+    private boolean isGlobal;
 
     @Builder.Default
     @Column(name = "is_accessible")

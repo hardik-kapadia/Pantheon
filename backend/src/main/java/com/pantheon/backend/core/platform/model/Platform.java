@@ -5,12 +5,11 @@ import com.pantheon.backend.core.library.model.Library;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -44,6 +43,10 @@ public class Platform {
 
     private String iconUrl;
 
+    @ToString.Exclude
+    @OneToOne(mappedBy = "platform")
+    private PlatformLocalConfig platformLocalConfig;
+
     @Builder.Default
     @ToString.Exclude
     @OneToMany(mappedBy = "platform", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -53,22 +56,6 @@ public class Platform {
     @ToString.Exclude
     @OneToMany(mappedBy = "platform", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RemoteEntitlement> entitlements = new ArrayList<>();
-
-    @Builder.Default
-    @Column(name = "executable_path")
-    private String executablePath = null;
-
-    @Builder.Default
-    @Column(name = "manifests_path")
-    private String manifestsPath = null;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "scan_strategy", nullable = false)
-    private ScanStrategy scanStrategy;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private PlatformType type;
 
     @Override
     public final boolean equals(Object o) {

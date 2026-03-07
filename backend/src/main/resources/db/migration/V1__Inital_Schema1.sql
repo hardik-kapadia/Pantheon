@@ -1,34 +1,37 @@
-
 CREATE TABLE platforms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
+    platform_name TEXT NOT NULL UNIQUE,
     icon_url TEXT,
-    executable_path TEXT,
-    manifests_path TEXT,
-    scan_strategy TEXT NOT NULL CHECK (scan_strategy IN ('LIBRARY', 'MANIFEST')) DEFAULT 'LIBRARY',
-
-    type TEXT NOT NULL CHECK (type IN ('API', 'MANUAL'))
 );
 
-INSERT INTO platforms (name, type, executable_path) VALUES
-('Steam', 'API', 'C:/Program Files (x86)/Steam/steam.exe'),
-('GOG', 'API', 'C:/Program Files (x86)/GOG/gog.exe');
+CREATE TABLE platform_local_configs (
+    if INTEGER PRIMARY KEY AUTOINCREMENT,
+    platform_id INTEGER NOT NULL,
+    executable_path TEXT,
+    manifests_path TEXT,
+    local_scan_strategy TEXT CHECK (scan_strategy IN ('LIBRARY', 'MANIFEST')),
+
+    FOREIGN KEY (platform_id) REFERENCES platforms(id),
+    CONSTRAINT path_exists CHECK ((local_scan_strategy = 'LIBRARY' AND executable_path IS NOT NULL) OR (local_scan_strategy = 'MANIFEST' AND manifests_path IS NOT NULL))
+);
+
+INSERT INTO platforms (platform_name, executable_path) VALUES
+('Steam', 'C:/Program Files (x86)/Steam/steam.exe'),
+('GOG', 'C:/Program Files (x86)/GOG/gog.exe');
 
 INSERT INTO platforms (name, type, executable_path, manifests_path, scan_strategy) VALUES
-('Epic', 'API', 'C:/Program Files (x86)/Epic/epic.exe', 'C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests', 'MANIFEST');
+('Epic', 'C:/Program Files (x86)/Epic/epic.exe', 'C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests', 'MANIFEST');
 
 CREATE TABLE libraries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     platform_id INTEGER NOT NULL,
-    path TEXT,
-    is_global BOOLEAN DEFAULT 0,
+    library_path TEXT,
+    is_global BOOLEAN NOT NULL DEFAULT 0,
     is_accessible BOOLEAN DEFAULT 1,
     last_scanned TIMESTAMP,
 
     FOREIGN KEY (platform_id) REFERENCES platforms(id),
-    CONSTRAINT path_required_if_local CHECK (
-            (is_global = 1) OR (is_global = 0 AND path IS NOT NULL)
-        )
+    CONSTRAINT path_required_if_not_global CHECK ((is_global = 1) OR (is_global = 0 AND library_path IS NOT NULL))
 );
 
 INSERT INTO libraries (platform_id, path) VALUES
@@ -52,10 +55,10 @@ CREATE TABLE games (
 
 CREATE TABLE remote_entitlements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    game_id INTEGER,
-    platform_id INTEGER,
-    platform_game_id TEXT,
-    playtime_minutes INTEGER DEFAULT 0,
+    game_id INTEGER NOT NULL,
+    platform_id INTEGER NOT NULL,
+    platform_game_id TEXT NOT NULL,
+    playtime_minutes INTEGER NOT NULL DEFAULT 0,
 
     FOREIGN KEY (game_id) REFERENCES games(id),
     FOREIGN KEY (platform_id) REFERENCES platforms(id),

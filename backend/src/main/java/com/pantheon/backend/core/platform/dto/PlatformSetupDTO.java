@@ -1,20 +1,19 @@
 package com.pantheon.backend.core.platform.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 public record PlatformSetupDTO(
-        String name,
+        @NotBlank(message = "Platform Name is required") String name,
+        String iconUrl,
+        String scanStrategy,
         String executablePath,
-        List<String> libraryPaths,
-        String iconUrl) {
+        String manifestsPath) {
 
     public PlatformSetupDTO {
-        if (libraryPaths == null) {
-            libraryPaths = new ArrayList<>();
-        }
+
+        if (scanStrategy == null) scanStrategy = "LIBRARY";
+
     }
 }

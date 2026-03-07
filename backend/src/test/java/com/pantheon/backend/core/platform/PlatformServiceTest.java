@@ -1,12 +1,10 @@
-package com.pantheon.backend.core.platform.local;
+package com.pantheon.backend.core.platform;
 
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.library.utils.ScannerUtil;
-import com.pantheon.backend.core.platform.dto.PlatformDTO;
 import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.platform.model.PlatformType;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PlatformLocalServiceTest {
+class PlatformServiceTest {
 
     @Mock
     private PlatformRepository platformRepository;
@@ -36,7 +34,7 @@ class PlatformLocalServiceTest {
     private ScannerUtil scannerUtil;
 
     @InjectMocks
-    private PlatformLocalService platformLocalService;
+    private PlatformService platformService;
 
     private Platform steamPlatform;
 
@@ -52,7 +50,7 @@ class PlatformLocalServiceTest {
     void getAllPlatforms_ReturnsAllPlatforms() {
         when(platformRepository.findAll()).thenReturn(Arrays.asList(steamPlatform));
 
-        List<Platform> result = platformLocalService.getAllPlatforms();
+        List<Platform> result = platformService.getAllPlatforms();
 
         assertEquals(1, result.size());
         assertEquals("Steam", result.get(0).getName());
@@ -62,7 +60,7 @@ class PlatformLocalServiceTest {
     void getPlatformByName_ExistingPlatform_ReturnsPlatform() {
         when(platformRepository.findByName("Steam")).thenReturn(Optional.of(steamPlatform));
 
-        Platform result = platformLocalService.getPlatformByName("Steam");
+        Platform result = platformService.getPlatformByName("Steam");
 
         assertNotNull(result);
         assertEquals("Steam", result.getName());
@@ -72,7 +70,7 @@ class PlatformLocalServiceTest {
     void getPlatformByName_NonExistingPlatform_ThrowsException() {
         when(platformRepository.findByName("Unknown")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> platformLocalService.getPlatformByName("Unknown"));
+        assertThrows(IllegalArgumentException.class, () -> platformService.getPlatformByName("Unknown"));
     }
 
     @Test
@@ -85,7 +83,7 @@ class PlatformLocalServiceTest {
         LocalGameLibraryScanner mockScanner = mock(LocalGameLibraryScanner.class);
         when(scannerUtil.getScannerForPlatform(any(Platform.class))).thenReturn(mockScanner);
 
-        PlatformDTO result = platformLocalService.setupLocalPlatform(setupDTO);
+        PlatformDTO result = platformService.setupLocalPlatform(setupDTO);
 
         assertNotNull(result);
         assertEquals("Steam", result.name());
@@ -103,6 +101,6 @@ class PlatformLocalServiceTest {
         PlatformSetupDTO setupDTO = new PlatformSetupDTO("Unknown", "/path/to/exe", List.of("/lib/path"), "icon.png");
         when(platformRepository.findByName("Unknown")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> platformLocalService.setupLocalPlatform(setupDTO));
+        assertThrows(IllegalArgumentException.class, () -> platformService.setupLocalPlatform(setupDTO));
     }
 }

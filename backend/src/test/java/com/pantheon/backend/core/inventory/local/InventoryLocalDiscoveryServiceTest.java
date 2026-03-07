@@ -3,7 +3,7 @@ package com.pantheon.backend.core.inventory.local;
 import com.pantheon.backend.core.inventory.local.processor.InventoryLocalScanService;
 import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.repository.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
