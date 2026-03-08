@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-interface PlatformRepository extends JpaRepository<Platform, Integer> {
+interface PlatformService extends JpaRepository<Platform, Integer> {
 
     Optional<Platform> findByName(String name);
 

@@ -1,17 +1,19 @@
 package com.pantheon.backend.core.inventory.local;
 
-import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.PlatformRepository;
-import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
 import com.pantheon.backend.core.inventory.local.processor.InventoryLocalScanService;
+import com.pantheon.backend.core.notification.LocalScanNotificationOrchestrationService;
+import com.pantheon.backend.core.platform.PlatformService;
+import com.pantheon.backend.core.platform.dto.PlatformDTO;
+import com.pantheon.backend.core.platform.model.Platform;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service responsible for orchestrating local library discovery tasks.
@@ -25,16 +27,16 @@ import java.util.Objects;
 @Service
 public class InventoryLocalDiscoveryService {
 
-    private final PlatformRepository platformRepository;
+    private final PlatformService platformService;
     private final LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService;
     private final InventoryLocalScanService inventoryLocalScanService;
 
     @Autowired
-    public InventoryLocalDiscoveryService(PlatformRepository platformRepository,
+    public InventoryLocalDiscoveryService(PlatformService platformService,
                                           InventoryLocalScanService inventoryLocalScanService,
                                           LocalScanNotificationOrchestrationService localScanNotificationOrchestrationService) {
 
-        this.platformRepository = platformRepository;
+        this.platformService = platformService;
         this.inventoryLocalScanService = inventoryLocalScanService;
         this.localScanNotificationOrchestrationService = localScanNotificationOrchestrationService;
 
@@ -61,11 +63,11 @@ public class InventoryLocalDiscoveryService {
     @Async
     public void scanPlatforms(String[] platforms) throws IllegalStateException, IllegalArgumentException {
 
-        List<Platform> platformList;
+        Set<PlatformDTO> platformList;
 
         if (platforms == null || platforms.length == 0) {
             log.info("Attempting scan request initiation for all platforms");
-            platformList = platformRepository.findAll();
+            platformList = platformService.getAllPlatforms();
         } else {
             log.info("Attempting scan request initiation for platforms: {}", Arrays.toString(platforms));
             platformList = Arrays.stream(platforms).map(platformName -> {
@@ -74,7 +76,7 @@ public class InventoryLocalDiscoveryService {
                 } catch (IllegalArgumentException e) {
                     return null;
                 }
-            }).filter(Objects::nonNull).toList();
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
         }
 
         log.info("Initiating Scan request for: {}", platformList);
@@ -111,13 +113,15 @@ public class InventoryLocalDiscoveryService {
      * @return the Platform Object
      * @throws IllegalArgumentException when Platform is not found
      */
-    private Platform getPlatformByName(String platformName) throws IllegalArgumentException {
-        return platformRepository.findByName(platformName)
-                .orElseThrow(() -> {
-                    log.error("{}: Unknown Platform", platformName);
-                    localScanNotificationOrchestrationService.notifyError(platformName, "Platform not found");
-                    return new IllegalArgumentException("Unknown platform: " + platformName);
-                });
+    private PlatformDTO getPlatformByName(String platformName) throws IllegalArgumentException {
+        try {
+            return platformService.getPlatform(platformName);
+        } catch (IllegalArgumentException e) {
+            log.error("{}: Unknown Platform", platformName);
+            localScanNotificationOrchestrationService.notifyError(platformName, "Platform not found");
+            throw e;
+        }
+
     }
 
 }

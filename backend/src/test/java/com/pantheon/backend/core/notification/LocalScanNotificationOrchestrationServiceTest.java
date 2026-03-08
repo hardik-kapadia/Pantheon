@@ -33,10 +33,9 @@ class LocalScanNotificationOrchestrationServiceTest {
 
     private LocalScanNotificationOrchestrationService service;
 
-    private final int BATCH_SIZE = 10;
-
     @BeforeEach
     void setUp() {
+        int BATCH_SIZE = 10;
         service = new LocalScanNotificationOrchestrationService(eventPublisher, BATCH_SIZE);
     }
 

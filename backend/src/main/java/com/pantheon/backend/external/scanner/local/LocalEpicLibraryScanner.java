@@ -6,8 +6,9 @@ import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ConfigurationException;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
+import com.pantheon.backend.core.platform.PlatformService;
 import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.PlatformRepository;
+import com.pantheon.backend.core.platform.model.PlatformType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,8 +32,8 @@ class LocalEpicLibraryScanner extends LocalGameLibraryScanner {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    protected LocalEpicLibraryScanner(PlatformRepository platformRepository) {
-        super(platformRepository);
+    protected LocalEpicLibraryScanner(PlatformService platformService) {
+        super(platformService);
         this.objectMapper = new ObjectMapper();
         this.platform = super.getPlatform();
     }
@@ -108,7 +109,7 @@ class LocalEpicLibraryScanner extends LocalGameLibraryScanner {
                     .title(title)
                     .platformGameId(appName)
                     .platformName(getPlatformName())
-                    .platformType(platform.getType())
+                    .platformType(PlatformType.LOCAL)
                     .installPath(installLocation)
                     .isInstalled(isInstalled)
                     .downloadSize(installSize)

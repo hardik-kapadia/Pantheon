@@ -3,7 +3,7 @@ package com.pantheon.backend.external.scanner.local;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.core.platform.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformService;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -12,8 +12,8 @@ import java.util.List;
 @Component
 class LocalGogLibraryScanner extends LocalGameLibraryScanner {
 
-    protected LocalGogLibraryScanner(PlatformRepository platformRepository) {
-        super(platformRepository);
+    protected LocalGogLibraryScanner(PlatformService platformService) {
+        super(platformService);
     }
 
     @Override

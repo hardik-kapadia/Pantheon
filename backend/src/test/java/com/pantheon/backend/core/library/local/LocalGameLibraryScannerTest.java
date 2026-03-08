@@ -2,6 +2,7 @@ package com.pantheon.backend.core.library.local;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
+import com.pantheon.backend.core.platform.PlatformService;
 import com.pantheon.backend.core.platform.model.Platform;
 import com.pantheon.backend.core.platform.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,37 +26,37 @@ import static org.mockito.Mockito.when;
 class LocalGameLibraryScannerTest {
 
     @Mock
-    private PlatformRepository platformRepository;
+    private PlatformService platformService;
 
     private TestLocalGameLibraryScanner scanner;
 
     @BeforeEach
     void setUp() {
-        scanner = new TestLocalGameLibraryScanner(platformRepository);
+        scanner = new TestLocalGameLibraryScanner(platformService);
     }
 
     @Test
     void getPlatform_FirstCall_FetchesFromRepository() {
         Platform platform = Platform.builder().name("TestPlatform").build();
-        when(platformRepository.findByName("TestPlatform")).thenReturn(Optional.of(platform));
+        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
 
         Platform result = scanner.getPlatform();
 
         assertEquals(platform, result);
-        verify(platformRepository).findByName("TestPlatform");
+        verify(platformService).findByName("TestPlatform");
     }
 
     @Test
     void getPlatform_SubsequentCalls_ReturnCachedPlatform() {
         Platform platform = Platform.builder().name("TestPlatform").build();
-        when(platformRepository.findByName("TestPlatform")).thenReturn(Optional.of(platform));
+        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
 
         scanner.getPlatform();
         Platform result = scanner.getPlatform();
 
         assertEquals(platform, result);
         // Verify repository was called only once
-        verify(platformRepository).findByName("TestPlatform");
+        verify(platformService).findByName("TestPlatform");
     }
 
     @Test
@@ -64,7 +65,7 @@ class LocalGameLibraryScannerTest {
                 .name("TestPlatform")
                 .libraryPaths(List.of("/path/1", "/path/2"))
                 .build();
-        when(platformRepository.findByName("TestPlatform")).thenReturn(Optional.of(platform));
+        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
 
         List<String> paths = scanner.getConfiguredLibraryPaths();
 
@@ -75,7 +76,7 @@ class LocalGameLibraryScannerTest {
 
     @Test
     void getConfiguredLibraryPaths_PlatformNotFound_ReturnsNull() {
-        when(platformRepository.findByName("TestPlatform")).thenReturn(Optional.empty());
+        when(platformService.findByName("TestPlatform")).thenReturn(Optional.empty());
 
         List<String> paths = scanner.getConfiguredLibraryPaths();
 
@@ -85,20 +86,20 @@ class LocalGameLibraryScannerTest {
     @Test
     void refreshPlatform_ClearsCache() {
         Platform platform = Platform.builder().name("TestPlatform").build();
-        when(platformRepository.findByName("TestPlatform")).thenReturn(Optional.of(platform));
+        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
 
         scanner.getPlatform(); // Cache it
         scanner.refreshPlatform(); // Clear it
         scanner.getPlatform(); // Fetch again
 
-        verify(platformRepository, org.mockito.Mockito.times(2)).findByName("TestPlatform");
+        verify(platformService, org.mockito.Mockito.times(2)).findByName("TestPlatform");
     }
 
     // Concrete implementation for testing abstract class
     static class TestLocalGameLibraryScanner extends LocalGameLibraryScanner {
 
-        protected TestLocalGameLibraryScanner(PlatformRepository platformRepository) {
-            super(platformRepository);
+        protected TestLocalGameLibraryScanner(PlatformService platformService) {
+            super(platformService);
         }
 
         @Override

@@ -3,6 +3,7 @@ package com.pantheon.backend.external.scanner.local;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.platform.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LocalGogLibraryScannerTest {
 
     @Mock
-    private PlatformRepository platformRepository;
+    private PlatformService platformService;
 
     private LocalGogLibraryScanner scanner;
 
@@ -29,7 +30,7 @@ class LocalGogLibraryScannerTest {
 
     @BeforeEach
     void setUp() {
-        scanner = new LocalGogLibraryScanner(platformRepository);
+        scanner = new LocalGogLibraryScanner(platformService);
     }
 
     @Test

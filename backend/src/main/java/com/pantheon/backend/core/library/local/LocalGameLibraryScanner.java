@@ -4,8 +4,9 @@ import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.model.Library;
 import com.pantheon.backend.core.platform.PlatformService;
+import com.pantheon.backend.core.platform.io.GetPlatformByNameRequest;
+import com.pantheon.backend.core.platform.io.GetPlatformByNameResponse;
 import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.PlatformRepository;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -16,8 +17,8 @@ public abstract class LocalGameLibraryScanner {
 
     private Platform cachedPlatform;
 
-    protected LocalGameLibraryScanner(PlatformService platformService, PlatformService platformService1) {
-        this.platformService = platformService1;
+    protected LocalGameLibraryScanner(PlatformService platformService) {
+        this.platformService = platformService;
     }
 
     public abstract String getPlatformName();
@@ -29,7 +30,13 @@ public abstract class LocalGameLibraryScanner {
 
             String name = getPlatformName();
 
-            this.cachedPlatform = platformService.getPlatformByName(name).orElse(null);
+            var getPlatformByNameRequest = GetPlatformByNameRequest.builder().name(name).build();
+            var getPlatformByNameResponse = platformService.getPlatform(getPlatformByNameRequest);
+
+            switch (getPlatformByNameResponse) {
+                case GetPlatformByNameResponse.Success success -> this.cachedPlatform = success.platform();
+                case GetPlatformByNameResponse.InvalidInput invalidInput -> throw new IllegalArgumentException(invalidInput.message());
+            }
 
         }
         return this.cachedPlatform;

@@ -2,7 +2,7 @@ package com.pantheon.backend.external.scanner.local;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.core.platform.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LocalEpicLibraryScannerTest {
 
     @Mock
-    private PlatformRepository platformRepository;
+    private PlatformService platformService;
 
     private LocalEpicLibraryScanner scanner;
 
@@ -29,7 +29,7 @@ class LocalEpicLibraryScannerTest {
 
     @BeforeEach
     void setUp() {
-        scanner = new LocalEpicLibraryScanner(platformRepository);
+        scanner = new LocalEpicLibraryScanner(platformService);
     }
 
     @Test

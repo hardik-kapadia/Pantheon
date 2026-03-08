@@ -2,7 +2,7 @@ package com.pantheon.backend.external.scanner.local;
 
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
-import com.pantheon.backend.core.platform.PlatformRepository;
+import com.pantheon.backend.core.platform.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LocalSteamLibraryScannerTest {
 
     @Mock
-    private PlatformRepository platformRepository;
+    private PlatformService platformService;
 
     private LocalSteamLibraryScanner scanner;
 
@@ -32,7 +32,7 @@ class LocalSteamLibraryScannerTest {
 
     @BeforeEach
     void setUp() {
-        scanner = new LocalSteamLibraryScanner(platformRepository);
+        scanner = new LocalSteamLibraryScanner(platformService);
     }
 
     @Test

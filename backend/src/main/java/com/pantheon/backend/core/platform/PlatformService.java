@@ -1,14 +1,16 @@
 package com.pantheon.backend.core.platform;
 
-import com.pantheon.backend.core.platform.dto.PlatformSetupDTO;
-import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.model.PlatformType;
 import com.pantheon.backend.core.library.utils.ScannerUtil;
+import com.pantheon.backend.core.platform.dto.PlatformInitialSetupDTO;
+import com.pantheon.backend.core.platform.io.GetAllPlatformResponse;
+import com.pantheon.backend.core.platform.io.GetPlatformByNameRequest;
+import com.pantheon.backend.core.platform.io.GetPlatformByNameResponse;
+import com.pantheon.backend.core.platform.model.Platform;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashSet;
 
 @Service
 @Slf4j
@@ -18,44 +20,28 @@ public class PlatformService {
     private final PlatformRepository platformRepository;
     private final ScannerUtil scannerUtil;
 
-    public List<Platform> getAllPlatforms() {
-        return platformRepository.findAll();
-    }
-
-    public Platform getPlatformByName(String name) throws IllegalArgumentException {
-        return platformRepository.findByName(name)
-                .orElseThrow(() -> new IllegalArgumentException("Platform with name " + name + " not found"));
-    }
-
-    public PlatformDTO setupLocalPlatform(PlatformSetupDTO platformSetupDTO) throws IllegalArgumentException {
-
-        Platform platform = getPlatformByName(platformSetupDTO.name());
-        platform.setExecutablePath(platformSetupDTO.executablePath());
-
-        if (platformSetupDTO.iconUrl() != null) {
-            platform.setIconUrl(platformSetupDTO.iconUrl());
-        }
-
-        if (platformSetupDTO.libraryPaths() != null && !platformSetupDTO.libraryPaths().isEmpty()) {
-            platform.getLibraries().clear();
-            platform.getLibraries().addAll(platformSetupDTO.libraryPaths());
-        }
-
-        Platform saved = platformRepository.save(platform);
-
-        scannerUtil.getScannerForPlatform(saved).refreshPlatform();
-
-        return platformDTO(saved);
-    }
-
-    private PlatformDTO platformDTO(Platform platform) {
-        return PlatformDTO.builder()
-                .name(platform.getName())
-                .executablePath(platform.getExecutablePath())
-                .libraryPaths(platform.getLibraryPaths())
-                .platformType(platform.getType())
-                .iconUrl(platform.getIconUrl())
+    public GetAllPlatformResponse getAllPlatforms() {
+        return GetAllPlatformResponse.Success.builder()
+                .platforms(new HashSet<>(platformRepository.findAll()))
                 .build();
     }
+
+    public GetPlatformByNameResponse getPlatform(GetPlatformByNameRequest request) {
+
+        String name = request.name();
+
+        return platformRepository.findByName(name)
+                .<GetPlatformByNameResponse>map(p -> GetPlatformByNameResponse.Success.builder()
+                        .platform(p)
+                        .build())
+                .orElseGet(() -> GetPlatformByNameResponse.InvalidInput.builder()
+                        .message("Platform with name %s not found".formatted(name))
+                        .build());
+    }
+
+    public Platform setupPlatform(PlatformInitialSetupDTO platformInitialSetupDTO) throws IllegalArgumentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
 
 }

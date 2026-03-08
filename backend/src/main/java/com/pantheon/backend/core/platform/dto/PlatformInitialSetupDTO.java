@@ -4,16 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record PlatformSetupDTO(
+public record PlatformInitialSetupDTO(
         @NotBlank(message = "Platform Name is required") String name,
         String iconUrl,
-        String scanStrategy,
-        String executablePath,
-        String manifestsPath) {
-
-    public PlatformSetupDTO {
-
-        if (scanStrategy == null) scanStrategy = "LIBRARY";
-
-    }
+        PlatformLocalSetupDTO localSetup) {
 }

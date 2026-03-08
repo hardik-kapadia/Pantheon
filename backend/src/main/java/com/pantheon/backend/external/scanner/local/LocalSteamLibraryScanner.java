@@ -3,6 +3,7 @@ package com.pantheon.backend.external.scanner.local;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
+import com.pantheon.backend.core.platform.PlatformService;
 import com.pantheon.backend.core.platform.model.PlatformType;
 import com.pantheon.backend.core.platform.PlatformRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +34,8 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
 
     private static final Pattern VDF_PAIR_PATTERN = Pattern.compile("\"([^\"]+)\"\\s+\"([^\"]+)\"");
 
-    protected LocalSteamLibraryScanner(PlatformRepository platformRepository) {
-        super(platformRepository);
+    protected LocalSteamLibraryScanner(PlatformService platformService) {
+        super(platformService);
     }
 
     @Override
