@@ -1,7 +1,6 @@
 package com.pantheon.backend.core.platform;
 
 import com.pantheon.backend.core.library.utils.ScannerUtil;
-import com.pantheon.backend.core.platform.model.Platform;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +15,7 @@ class PlatformServiceTest {
     private ScannerUtil scannerUtil;
 
     @InjectMocks
-    private PlatformService platformService;
+    private PlatformRepository platformService;
 
     @Nested
     class GetAllPlatforms {

@@ -18,7 +18,6 @@ import java.util.HashSet;
 public class PlatformService {
 
     private final PlatformRepository platformRepository;
-    private final ScannerUtil scannerUtil;
 
     public GetAllPlatformResponse getAllPlatforms() {
         return GetAllPlatformResponse.Success.builder()
@@ -35,7 +34,7 @@ public class PlatformService {
                         .platform(p)
                         .build())
                 .orElseGet(() -> GetPlatformByNameResponse.InvalidInput.builder()
-                        .message("Platform with name %s not found".formatted(name))
+                        .message(String.format("Platform with name %s not found", name))
                         .build());
     }
 
