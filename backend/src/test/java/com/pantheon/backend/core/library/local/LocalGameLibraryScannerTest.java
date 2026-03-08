@@ -143,7 +143,7 @@ class LocalGameLibraryScannerTest {
         }
 
         @Override
-        public List<ScannedLocalGameDTO> scan(Path path) throws ScanFailureException {
+        public List<ScannedLocalGameDTO> scan(Path path) {
             return Collections.emptyList();
         }
     }
