@@ -46,10 +46,6 @@ public abstract class LocalGameLibraryScanner {
 
         Platform platform = getPlatform();
 
-        if (platform == null) {
-            return null;
-        }
-
         return platform.getLibraries().stream().map(Library::getPath).toList();
 
     }

@@ -3,9 +3,12 @@ package com.pantheon.backend.core.library.local;
 import com.pantheon.backend.core.inventory.local.dto.ScannedLocalGameDTO;
 import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.platform.PlatformService;
+import com.pantheon.backend.core.platform.io.GetPlatformByNameRequest;
+import com.pantheon.backend.core.platform.io.GetPlatformByNameResponse;
 import com.pantheon.backend.core.platform.model.Platform;
-import com.pantheon.backend.core.platform.PlatformRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,12 +17,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
+
+import static com.pantheon.backend.testdata.TestData.LIBRARY_PATH_STEAM_ACTUAL;
+import static com.pantheon.backend.testdata.TestData.PLATFORM_STEAM_WITH_LIBRARY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,69 +37,97 @@ class LocalGameLibraryScannerTest {
 
     private TestLocalGameLibraryScanner scanner;
 
+    private static final GetPlatformByNameRequest PLATFORM_REQUEST_STEAM = GetPlatformByNameRequest.builder()
+            .name("Steam")
+            .build();
+
+    private static final GetPlatformByNameResponse PLATFORM_RESPONSE_SUCCESS_STEAM = GetPlatformByNameResponse.Success.builder()
+            .platform(PLATFORM_STEAM_WITH_LIBRARY)
+            .build();
+
+    private static final GetPlatformByNameResponse PLATFORM_RESPONSE_FAILURE = GetPlatformByNameResponse.InvalidInput.builder()
+            .message("Invalid platform name")
+            .build();
+
     @BeforeEach
     void setUp() {
         scanner = new TestLocalGameLibraryScanner(platformService);
     }
 
-    @Test
-    void getPlatform_FirstCall_FetchesFromRepository() {
-        Platform platform = Platform.builder().name("TestPlatform").build();
-        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
-
-        Platform result = scanner.getPlatform();
-
-        assertEquals(platform, result);
-        verify(platformService).findByName("TestPlatform");
+    @AfterEach
+    void cleanUp() {
+        verifyNoInteractions(platformService);
     }
 
-    @Test
-    void getPlatform_SubsequentCalls_ReturnCachedPlatform() {
-        Platform platform = Platform.builder().name("TestPlatform").build();
-        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
 
-        scanner.getPlatform();
-        Platform result = scanner.getPlatform();
+    @Nested
+    class GetPlatformByName {
 
-        assertEquals(platform, result);
-        // Verify repository was called only once
-        verify(platformService).findByName("TestPlatform");
+        @Test
+        void getPlatform_FirstCall_FetchesFromRepository() {
+            when(platformService.getPlatform(argThat(req -> req.name().equals("Steam"))))
+                    .thenReturn(PLATFORM_RESPONSE_SUCCESS_STEAM);
+
+            Platform result = scanner.getPlatform();
+
+            assertEquals(PLATFORM_STEAM_WITH_LIBRARY, result);
+            verify(platformService).getPlatform(PLATFORM_REQUEST_STEAM);
+        }
+
+        @Test
+        void getPlatform_SubsequentCalls_ReturnCachedPlatform() {
+            when(platformService.getPlatform(argThat(req -> req.name().equals("Steam"))))
+                    .thenReturn(PLATFORM_RESPONSE_SUCCESS_STEAM);
+
+            scanner.getPlatform();
+            Platform result = scanner.getPlatform();
+
+            assertEquals(PLATFORM_STEAM_WITH_LIBRARY, result);
+            verify(platformService).getPlatform(PLATFORM_REQUEST_STEAM);
+        }
     }
 
-    @Test
-    void getConfiguredLibraryPaths_PlatformExists_ReturnsPaths() {
-        Platform platform = Platform.builder()
-                .name("TestPlatform")
-                .libraryPaths(List.of("/path/1", "/path/2"))
-                .build();
-        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
+    @Nested
+    class GetConfiguredLibraryPaths {
+        @Test
+        void getConfiguredLibraryPaths_PlatformExists_ReturnsPaths() {
 
-        List<String> paths = scanner.getConfiguredLibraryPaths();
+            when(platformService.getPlatform(argThat(req -> req.name().equals("Steam"))))
+                    .thenReturn(PLATFORM_RESPONSE_SUCCESS_STEAM);
 
-        assertNotNull(paths);
-        assertEquals(2, paths.size());
-        assertEquals("/path/1", paths.get(0));
+            List<String> paths = scanner.getConfiguredLibraryPaths();
+
+            assertThat(paths)
+                    .isNotNull()
+                    .hasSize(1)
+                    .containsExactly(LIBRARY_PATH_STEAM_ACTUAL);
+
+        }
+
+        @Test
+        void getConfiguredLibraryPaths_PlatformNotFound_throwsIllegalArgumentException() {
+
+            when(platformService.getPlatform(argThat(req -> req.name().equals("Steam"))))
+                    .thenReturn(PLATFORM_RESPONSE_FAILURE);
+
+            assertThrows(IllegalArgumentException.class, () -> scanner.getConfiguredLibraryPaths());
+        }
     }
 
-    @Test
-    void getConfiguredLibraryPaths_PlatformNotFound_ReturnsNull() {
-        when(platformService.findByName("TestPlatform")).thenReturn(Optional.empty());
+    @Nested
+    class RefreshPlatform {
+        @Test
+        void refreshPlatform_ClearsCache() {
+            when(platformService.getPlatform(argThat(req -> req.name().equals("Steam"))))
+                    .thenReturn(PLATFORM_RESPONSE_SUCCESS_STEAM);
 
-        List<String> paths = scanner.getConfiguredLibraryPaths();
+            scanner.getPlatform(); // Cache it
+            scanner.refreshPlatform(); // Clear it
+            scanner.getPlatform(); // Fetch again
 
-        assertNull(paths);
-    }
-
-    @Test
-    void refreshPlatform_ClearsCache() {
-        Platform platform = Platform.builder().name("TestPlatform").build();
-        when(platformService.findByName("TestPlatform")).thenReturn(Optional.of(platform));
-
-        scanner.getPlatform(); // Cache it
-        scanner.refreshPlatform(); // Clear it
-        scanner.getPlatform(); // Fetch again
-
-        verify(platformService, org.mockito.Mockito.times(2)).findByName("TestPlatform");
+            verify(platformService, org.mockito.Mockito.times(2))
+                    .getPlatform(argThat(req -> req.name().equals("Steam")));
+        }
     }
 
     // Concrete implementation for testing abstract class
@@ -104,7 +139,7 @@ class LocalGameLibraryScannerTest {
 
         @Override
         public String getPlatformName() {
-            return "TestPlatform";
+            return "Steam";
         }
 
         @Override

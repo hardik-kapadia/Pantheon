@@ -13,17 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PlatformServiceTest {
 
     @Mock
-    private PlatformRepository platformRepository;
-
-    @Mock
     private ScannerUtil scannerUtil;
 
     @InjectMocks
     private PlatformService platformService;
-
-    private final Platform steamPlatform = Platform.builder()
-            .name("Steam")
-            .build();;
 
     @Nested
     class GetAllPlatforms {

@@ -5,7 +5,6 @@ import com.pantheon.backend.core.library.exception.ScanFailureException;
 import com.pantheon.backend.core.library.local.LocalGameLibraryScanner;
 import com.pantheon.backend.core.platform.PlatformService;
 import com.pantheon.backend.core.platform.model.PlatformType;
-import com.pantheon.backend.core.platform.PlatformRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -148,7 +147,7 @@ class LocalSteamLibraryScanner extends LocalGameLibraryScanner {
                 .title(name)
                 .platformGameId(appId)
                 .platformName("Steam")
-                .platformType(PlatformType.API)
+                .platformType(PlatformType.ONLINE)
                 .installPath(installPath.toString())
                 .isInstalled(isInstalled)
                 .downloadSize(sizeOnDisk)
